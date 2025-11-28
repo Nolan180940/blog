@@ -257,7 +257,7 @@
         localStorage.setItem(AUTH_KEY, '0');
         resetEditor();
       } else {
-        const pwd = prompt("请输入Admin密码 (默认: admin):");
+        const pwd = prompt("请输入Admin密码:");
         if (pwd === ADMIN_PASS) {
           localStorage.setItem(AUTH_KEY, '1');
         } else if (pwd !== null) alert("密码错误");
@@ -273,3 +273,4 @@
   </script>
 </body>
 </html>
+
