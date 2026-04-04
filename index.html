@@ -385,6 +385,7 @@
     const ADMIN_PASS = "admin";
     const AUTH_KEY = "is_admin_mode";
     const QUILL_VERSION = "1.3.7";
+    const RESOURCE_LOAD_TIMEOUT_MS = 9000;
     const QUILL_CSS_CDNS = [
       `https://cdnjs.cloudflare.com/ajax/libs/quill/${QUILL_VERSION}/quill.snow.min.css`,
       `https://unpkg.com/quill@${QUILL_VERSION}/dist/quill.snow.css`,
@@ -399,11 +400,11 @@
     let quill = null;
     let cachedPosts = [];
 
-    function loadScript(src, timeout = 9000) {
+    function loadScript(src, { timeout = RESOURCE_LOAD_TIMEOUT_MS, loadedCheck } = {}) {
       return new Promise((resolve, reject) => {
         const existing = document.querySelector(`script[src="${src}"]`);
         if (existing) {
-          if (typeof Quill !== 'undefined' || src.includes('supabase')) return resolve();
+          if (!loadedCheck || loadedCheck()) return resolve();
           existing.addEventListener('load', () => resolve(), { once: true });
           existing.addEventListener('error', () => reject(new Error(`脚本加载失败: ${src}`)), { once: true });
           return;
@@ -431,7 +432,7 @@
       });
     }
 
-    function loadStylesheet(href, timeout = 9000) {
+    function loadStylesheet(href, { timeout = RESOURCE_LOAD_TIMEOUT_MS } = {}) {
       return new Promise((resolve, reject) => {
         const existing = document.querySelector(`link[href="${href}"]`);
         if (existing) return resolve();
@@ -464,7 +465,7 @@
       for (const url of urls) {
         try {
           if (loadedCheck()) return;
-          await loader(url);
+          await loader(url, { timeout: RESOURCE_LOAD_TIMEOUT_MS, loadedCheck });
           if (loadedCheck()) return;
         } catch (err) {
           lastErr = err;
