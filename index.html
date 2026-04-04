@@ -448,6 +448,7 @@
 
         link.onload = () => {
           clearTimeout(timer);
+          link.dataset.loaded = '1';
           resolve();
         };
         link.onerror = () => {
@@ -478,7 +479,10 @@
 
     async function ensureQuillLoaded() {
       if (typeof Quill !== 'undefined') return;
-      await loadWithFallback(QUILL_CSS_CDNS, loadStylesheet, () => !!document.querySelector('link[href*="quill"][rel="stylesheet"]'));
+      await loadWithFallback(QUILL_CSS_CDNS, loadStylesheet, () => QUILL_CSS_CDNS.some((url) => {
+        const link = document.querySelector(`link[href="${url}"][rel="stylesheet"]`);
+        return !!(link && (link.dataset.loaded === '1' || link.sheet));
+      }));
       await loadWithFallback(QUILL_JS_CDNS, loadScript, () => typeof Quill !== 'undefined');
       if (typeof Quill === 'undefined') {
         throw new Error("Quill 编辑器库加载失败：已尝试多个 CDN。请检查网络（尤其是 Edge 的网络策略）后刷新。");
