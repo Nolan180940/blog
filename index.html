@@ -3,343 +3,596 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Echoes - 个人空间</title>
-  <!-- 样式表 -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>Nolan · 个人博客</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.bootcdn.net/ajax/libs/quill/1.3.6/quill.snow.min.css" rel="stylesheet">
-  
+
   <style>
-    /* UI 样式保持不变 */
-    :root { --bg-color: #F5F3EF; --card-bg: #FFFFFF; --text-main: #333333; --text-sub: #666666; --accent-color: #E67E22; --btn-color: #4A4A4A; --btn-hover: #000000; --border-radius: 16px; --shadow: 0 4px 20px rgba(0,0,0,0.04); }
+    :root {
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --surface-soft: #f2f4fb;
+      --text: #141822;
+      --text-soft: #5f6678;
+      --line: #e7ebf4;
+      --primary: #5b6cff;
+      --primary-hover: #4958de;
+      --danger: #e94d5f;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --shadow: 0 10px 30px rgba(26, 33, 52, 0.08);
+    }
+
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Noto Sans SC', sans-serif; background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; padding: 40px 20px; }
-    .container { display: grid; grid-template-columns: 320px 1fr; gap: 30px; width: 100%; max-width: 1100px; align-items: start; }
-    .card { background: var(--card-bg); border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 24px; transition: all 0.3s ease; }
-    .left-sidebar { position: sticky; top: 40px; }
-    .profile-card { text-align: center; }
-    .avatar { width: 80px; height: 80px; background-color: #ddd; border-radius: 50%; margin: 0 auto 16px; background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Nolan'); background-size: cover; }
-    .profile-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
-    .profile-bio { font-size: 0.9rem; color: var(--text-sub); line-height: 1.6; }
-    .editor-card { display: none; border: 2px solid var(--accent-color); }
-    .editor-header { font-weight: bold; margin-bottom: 12px; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center; }
-    .input-title { width: 100%; border: none; background: #F9F9F9; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 1rem; font-weight: 500; outline: none; }
-    #editor-container { height: 200px; background: #fff; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
-    .ql-toolbar { border-top-left-radius: 8px; border-top-right-radius: 8px; }
-    .action-btn { width: 100%; margin-top: 15px; padding: 10px; border: none; background: var(--btn-color); color: #fff; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
-    .action-btn:hover { background: var(--btn-hover); }
-    .cancel-edit-btn { background: #ccc; color: #333; margin-top: 8px; display: none; }
-    .restore-btn { background: #E67E22; color: #fff; margin-top: 8px; font-size: 0.9rem;}
-    .feed-list { list-style: none; padding: 0; margin: 0; }
-    .feed-item { margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px dashed #e0e0e0; position: relative; }
-    .feed-item:last-child { border-bottom: none; }
-    .post-meta { display: flex; align-items: center; font-size: 0.85rem; color: var(--accent-color); font-weight: 600; margin-bottom: 12px; }
-    .post-meta::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--accent-color); border-radius: 50%; margin-right: 8px; }
-    .post-title { font-size: 1.4rem; font-weight: 700; margin: 0 0 12px 0; color: #2c3e50; }
-    .post-content { font-size: 1rem; line-height: 1.7; color: #444; }
-    .post-content img { max-width: 100%; border-radius: 8px; }
-    .post-content blockquote { border-left: 4px solid #ddd; padding-left: 16px; color: #777; margin: 16px 0; }
-    .admin-controls { margin-top: 15px; display: none; gap: 10px; }
-    .admin-btn { padding: 4px 12px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
-    .btn-edit { color: var(--accent-color); border-color: var(--accent-color); }
-    .btn-del { color: #e74c3c; border-color: #e74c3c; }
-    
-    /* 关键：设置按钮样式调整 */
-    .mode-switch { position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.1); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 100; transition: background 0.3s; }
-    .mode-switch:hover { background: var(--accent-color); color: #fff; }
-    
-    /* 错误提示样式 */
-    .error-banner { background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
-    @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .left-sidebar { position: relative; top: 0; margin-bottom: 20px;} }
+
+    body {
+      margin: 0;
+      font-family: 'Noto Sans SC', sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, #eef1ff 0, transparent 36%),
+        radial-gradient(circle at 100% 0%, #eafcff 0, transparent 28%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 16px 42px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 24px;
+      padding: 22px;
+    }
+
+    .avatar {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      margin-bottom: 14px;
+      border: 3px solid #eef2ff;
+      background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Nolan');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .profile-name {
+      margin: 0 0 6px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    .profile-bio {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 0.92rem;
+      line-height: 1.75;
+      white-space: pre-line;
+    }
+
+    .admin-card { display: none; }
+    .admin-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 12px;
+    }
+
+    .admin-head strong {
+      font-size: 1rem;
+      color: var(--primary);
+    }
+
+    .exit-admin {
+      border: none;
+      background: transparent;
+      color: var(--text-soft);
+      cursor: pointer;
+      font-size: 0.86rem;
+      padding: 0;
+    }
+
+    .input-title {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+      padding: 11px 12px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      outline: none;
+      color: var(--text);
+    }
+
+    .input-title:focus {
+      border-color: #b8c2ff;
+      background: #f8f9ff;
+    }
+
+    #editor-container {
+      height: 220px;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      overflow: hidden;
+    }
+
+    .ql-toolbar {
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      border-color: var(--line) !important;
+      background: var(--surface-soft);
+    }
+
+    .ql-container {
+      border-color: var(--line) !important;
+      font-size: 0.95rem;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      padding: 10px 12px;
+      font-size: 0.93rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      margin-top: 10px;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-muted { background: #edf0f7; color: #4f5669; }
+    .btn-muted:hover { background: #e3e7f2; }
+    .btn-warning { background: #f89b3f; color: #fff; }
+    .btn-warning:hover { background: #ea8a2f; }
+
+    .feed {
+      padding: 14px;
+      min-height: 500px;
+    }
+
+    .feed-header {
+      padding: 18px 16px;
+      margin-bottom: 8px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #5b6cff, #6e9bff);
+      color: #fff;
+    }
+
+    .feed-header h1 {
+      margin: 0 0 6px;
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .feed-header p {
+      margin: 0;
+      font-size: 0.9rem;
+      opacity: 0.95;
+    }
+
+    .feed-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .feed-item {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .feed-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(29, 37, 58, 0.06);
+    }
+
+    .post-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: #4d5de0;
+      background: #edf0ff;
+      border-radius: 999px;
+      padding: 4px 10px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .post-title {
+      margin: 0 0 10px;
+      font-size: 1.22rem;
+      line-height: 1.4;
+      font-weight: 800;
+      color: #1c2233;
+      word-break: break-word;
+    }
+
+    .post-content {
+      color: #374058;
+      line-height: 1.8;
+      font-size: 0.96rem;
+      word-break: break-word;
+    }
+
+    .post-content img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin: 8px 0;
+    }
+
+    .post-content blockquote {
+      margin: 12px 0;
+      padding-left: 12px;
+      border-left: 4px solid #d8def4;
+      color: #65708a;
+    }
+
+    .admin-controls {
+      display: none;
+      margin-top: 14px;
+      gap: 8px;
+    }
+
+    .admin-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-edit { color: #4d5de0; border-color: #cfd6ff; }
+    .btn-del { color: var(--danger); border-color: #ffd0d6; }
+
+    .mode-switch {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      border: none;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.2rem;
+      box-shadow: 0 10px 24px rgba(91, 108, 255, 0.35);
+      transition: transform 0.2s ease, background 0.2s ease;
+      z-index: 100;
+    }
+
+    .mode-switch:hover {
+      transform: translateY(-2px);
+      background: var(--primary-hover);
+    }
+
+    .status-box {
+      text-align: center;
+      color: var(--text-soft);
+      padding: 30px 16px;
+      font-size: 0.92rem;
+    }
+
+    .error-banner {
+      background: #fff1f2;
+      border: 1px solid #ffcdd4;
+      color: #be123c;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
   </style>
 
-  <!-- 引入库 (换成了更稳定的 BootCDN) -->
   <script src="https://cdn.bootcdn.net/ajax/libs/quill/1.3.6/quill.min.js"></script>
-  <!-- 引入 Supabase JS SDK (通过 unpkg) -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
-  <!-- 全局错误捕捉 -->
-  <div id="globalError" style="display:none; position:fixed; top:0; left:0; width:100%; background:red; color:white; text-align:center; padding:10px; z-index:9999;"></div>
+  <div id="globalError" style="display:none;position:fixed;top:0;left:0;width:100%;background:#ef4444;color:#fff;text-align:center;padding:10px;z-index:9999;"></div>
 
   <button class="mode-switch" id="modeSwitch" title="切换Admin模式">⚙️</button>
 
-  <div class="container">
-    <div class="left-sidebar">
-      <div class="card profile-card" id="guestPanel">
+  <div class="app">
+    <aside class="panel sidebar">
+      <div id="guestPanel">
         <div class="avatar"></div>
-        <div class="profile-name">Nolan</div>
-        <div class="profile-bio">
-          New York University Shanghai<br><br>
-          乐于探索哲学奥秘<br>寻找生命意义<br>热爱前沿科技<br>自由而有趣的灵魂
-        </div>
+        <h2 class="profile-name">Nolan</h2>
+        <p class="profile-bio">New York University Shanghai
+
+乐于探索哲学奥秘
+寻找生命意义
+热爱前沿科技
+自由而有趣的灵魂</p>
       </div>
 
-      <div class="card editor-card" id="adminPanel">
-        <div class="editor-header">
-          <span id="editorModeText">发布新内容</span>
-          <small style="font-weight:normal; cursor:pointer;" onclick="switchMode()">退出Admin</small>
+      <div id="adminPanel" class="admin-card">
+        <div class="admin-head">
+          <strong id="editorModeText">发布新内容</strong>
+          <button class="exit-admin" onclick="switchMode()">退出 Admin</button>
         </div>
         <input type="text" id="postTitle" class="input-title" placeholder="输入标题..." autocomplete="off">
         <div id="editor-container"></div>
         <input type="hidden" id="editingId" value="">
-        <button class="action-btn" id="submitBtn">发布 Echo</button>
-        <button class="action-btn cancel-edit-btn" id="cancelEditBtn">取消修改</button>
-        <hr style="margin: 15px 0; border:0; border-top:1px dashed #ddd;">
-        <button class="action-btn restore-btn" onclick="restoreDefaultData()">🔄 一键恢复默认文章</button>
+        <button class="btn btn-primary" id="submitBtn">发布 Echo</button>
+        <button class="btn btn-muted" id="cancelEditBtn" style="display:none;">取消修改</button>
+        <button class="btn btn-warning" onclick="restoreDefaultData()">🔄 一键恢复默认文章</button>
       </div>
-    </div>
+    </aside>
 
-    <div class="main-feed">
+    <main class="panel feed">
+      <header class="feed-header">
+        <h1>Echoes · 时间切片</h1>
+        <p>记录思想、学习与生活的小宇宙。</p>
+      </header>
       <ul class="feed-list" id="feedList">
-        <div style="text-align:center; color:#999; padding:20px;">
-            <div class="loader" style="display:inline-block; border: 3px solid #f3f3f3; border-top: 3px solid #E67E22; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite;"></div>
-            <p id="loadingText">正在初始化系统...</p>
+        <div class="status-box">
+          <div style="display:inline-block;border:3px solid #eef0f6;border-top:3px solid #5b6cff;border-radius:50%;width:24px;height:24px;animation:spin 1s linear infinite;"></div>
+          <p id="loadingText">正在初始化系统...</p>
         </div>
       </ul>
-    </div>
+    </main>
   </div>
 
   <script>
-    // --- 0. 全局错误监控 (防止僵尸状态) ---
     window.onerror = function(msg, url, line, col, error) {
-        const errBox = document.getElementById('globalError');
-        errBox.style.display = 'block';
-        errBox.innerHTML = `⚠️ 程序崩溃: ${msg} (Line: ${line})<br>可能是网络问题导致库未加载，请刷新重试。`;
-        return false;
+      const errBox = document.getElementById('globalError');
+      errBox.style.display = 'block';
+      errBox.innerHTML = `⚠️ 程序崩溃: ${msg} (Line: ${line})<br>可能是网络问题导致库未加载，请刷新重试。`;
+      return false;
     };
 
-    // --- 1. 配置区 (务必检查！) ---
-    const SUPABASE_URL = 'https://pukmwienoiknatnpzobk.supabase.co'; // 已填入
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1a213aWVub2lrbmF0bnB6b2JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyOTYyMjgsImV4cCI6MjA3OTg3MjIyOH0.OXSEMos-dlXKk0exU4e-ZKTFo2vxDpm5jRMCRGqSSp0'; // 已填入
-    
-    // --- 2. 核心初始化 ---
-    const ADMIN_PASS = "admin"; 
+    const SUPABASE_URL = 'https://pukmwienoiknatnpzobk.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1a213aWVub2lrbmF0bnB6b2JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyOTYyMjgsImV4cCI6MjA3OTg3MjIyOH0.OXSEMos-dlXKk0exU4e-ZKTFo2vxDpm5jRMCRGqSSp0';
+
+    const ADMIN_PASS = "admin";
     const AUTH_KEY = "is_admin_mode";
-    let supabaseClient = null; // 变量名修改，防止冲突
+    let supabaseClient = null;
     let quill = null;
-    let cachedPosts = []; 
+    let cachedPosts = [];
 
-    // 初始化程序
     async function initApp() {
-        try {
-            // 2.1 检查 Quill 是否加载
-            if (typeof Quill === 'undefined') {
-                throw new Error("Quill 编辑器库加载失败，请检查网络或更换 CDN。");
-            }
-            quill = new Quill('#editor-container', {
-                theme: 'snow',
-                placeholder: '写点什么...',
-                modules: { toolbar: [['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['link', 'image', 'code-block']] }
-            });
-
-            // 2.2 检查 Supabase 是否加载
-            if (typeof window.supabase === 'undefined') {
-                throw new Error("Supabase SDK 加载失败，请检查网络。");
-            }
-
-            // 2.3 检查是否填了 Key
-            if (SUPABASE_URL.includes('你的URL') || SUPABASE_KEY.includes('你的KEY')) {
-                throw new Error("检测到未配置 Supabase URL/Key。<br>请用记事本打开 index.html，填入正确的配置。");
-            }
-
-            // 初始化 Supabase 客户端 (使用新变量名)
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            
-            // 2.4 绑定按钮事件 (放在这里确保即使数据加载失败，按钮也能用)
-            document.getElementById('modeSwitch').onclick = switchMode;
-            document.getElementById('submitBtn').onclick = handleSubmit;
-            document.getElementById('cancelEditBtn').onclick = resetEditor;
-
-            // 2.5 开始拉取数据
-            await fetchPosts();
-
-        } catch (e) {
-            showError(e.message);
-            // 即使出错，也尝试绑定按钮，防止死锁
-            if(document.getElementById('modeSwitch')) {
-                document.getElementById('modeSwitch').onclick = switchMode;
-            }
+      try {
+        if (typeof Quill === 'undefined') {
+          throw new Error("Quill 编辑器库加载失败，请检查网络或更换 CDN。");
         }
+
+        quill = new Quill('#editor-container', {
+          theme: 'snow',
+          placeholder: '写点什么...',
+          modules: { toolbar: [['bold', 'italic', 'underline', 'strike'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['link', 'image', 'code-block']] }
+        });
+
+        if (typeof window.supabase === 'undefined') {
+          throw new Error("Supabase SDK 加载失败，请检查网络。");
+        }
+
+        if (SUPABASE_URL.includes('你的URL') || SUPABASE_KEY.includes('你的KEY')) {
+          throw new Error("检测到未配置 Supabase URL/Key。<br>请用记事本打开 index.html，填入正确的配置。");
+        }
+
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.getElementById('modeSwitch').onclick = switchMode;
+        document.getElementById('submitBtn').onclick = handleSubmit;
+        document.getElementById('cancelEditBtn').onclick = resetEditor;
+
+        await fetchPosts();
+      } catch (e) {
+        showError(e.message);
+        if (document.getElementById('modeSwitch')) {
+          document.getElementById('modeSwitch').onclick = switchMode;
+        }
+      }
     }
 
-    // --- 3. 数据交互 ---
     async function fetchPosts() {
-        document.getElementById('loadingText').innerText = "正在连接云端数据库...";
-        
-        const { data, error } = await supabaseClient
-            .from('posts')
-            .select('*')
-            .order('id', { ascending: false });
+      document.getElementById('loadingText').innerText = "正在连接云端数据库...";
 
-        if (error) {
-            console.error(error);
-            showError(`数据库连接错误: ${error.message}<br>可能原因: 项目暂停(Paused) 或 RLS 权限未开。`);
-            return;
-        }
+      const { data, error } = await supabaseClient
+        .from('posts')
+        .select('*')
+        .order('id', { ascending: false });
 
-        if (!data || data.length === 0) {
-            document.getElementById('feedList').innerHTML = `
-                <div style="text-align:center; color:#999; padding:40px;">
-                    <h3>📭 数据库已连接，但没有文章</h3>
-                    <p>请点击右下角 ⚙️ 进入 Admin，使用“一键恢复默认文章”功能。</p>
-                </div>`;
-            return;
-        }
+      if (error) {
+        console.error(error);
+        showError(`数据库连接错误: ${error.message}<br>可能原因: 项目暂停(Paused) 或 RLS 权限未开。`);
+        return;
+      }
 
-        cachedPosts = data;
-        renderFeed(data);
+      if (!data || data.length === 0) {
+        document.getElementById('feedList').innerHTML = `
+          <div class="status-box">
+            <h3 style="margin:0 0 8px;color:#27304a;">📭 数据库已连接，但没有文章</h3>
+            <p style="margin:0;">请点击右下角 ⚙️ 进入 Admin，使用“一键恢复默认文章”功能。</p>
+          </div>`;
+        return;
+      }
+
+      cachedPosts = data;
+      renderFeed(data);
     }
 
     function renderFeed(posts) {
-        const list = document.getElementById('feedList');
-        list.innerHTML = '';
-        const adminMode = localStorage.getItem(AUTH_KEY) === '1';
+      const list = document.getElementById('feedList');
+      list.innerHTML = '';
+      const adminMode = localStorage.getItem(AUTH_KEY) === '1';
 
-        posts.forEach(post => {
-            const li = document.createElement('li');
-            li.className = 'feed-item';
-            const adminControls = adminMode ? `
-            <div class="admin-controls" style="display:flex;">
-                <button class="admin-btn btn-edit" onclick="editPost(${post.id})">编辑</button>
-                <button class="admin-btn btn-del" onclick="deletePost(${post.id})">删除</button>
-            </div>` : '';
+      posts.forEach(post => {
+        const li = document.createElement('li');
+        li.className = 'feed-item';
+        const adminControls = adminMode ? `
+          <div class="admin-controls" style="display:flex;">
+            <button class="admin-btn btn-edit" onclick="editPost(${post.id})">编辑</button>
+            <button class="admin-btn btn-del" onclick="deletePost(${post.id})">删除</button>
+          </div>` : '';
 
-            li.innerHTML = `
-            <div class="post-meta">${post.date || '未知日期'}</div>
-            <h2 class="post-title">${post.title}</h2>
-            <div class="post-content">${post.content}</div>
-            ${adminControls}
-            `;
-            list.appendChild(li);
-        });
-        updateUIState(); // 确保加载完数据后界面状态正确
+        li.innerHTML = `
+          <div class="post-meta">${post.date || '未知日期'}</div>
+          <h2 class="post-title">${post.title}</h2>
+          <div class="post-content">${post.content}</div>
+          ${adminControls}
+        `;
+        list.appendChild(li);
+      });
+
+      updateUIState();
     }
 
-    // --- 4. 交互逻辑 ---
     function showError(msg) {
-        document.getElementById('feedList').innerHTML = `<div class="error-banner">❌ ${msg}</div>`;
-        // 隐藏全局错误条，避免重复
-        document.getElementById('globalError').style.display = 'none';
+      document.getElementById('feedList').innerHTML = `<div class="error-banner">❌ ${msg}</div>`;
+      document.getElementById('globalError').style.display = 'none';
     }
 
     async function handleSubmit() {
-        const title = document.getElementById('postTitle').value.trim();
-        const content = quill.root.innerHTML;
-        const editingId = document.getElementById('editingId').value;
+      const title = document.getElementById('postTitle').value.trim();
+      const content = quill.root.innerHTML;
+      const editingId = document.getElementById('editingId').value;
 
-        if (!title) { alert("标题不能为空"); return; }
-        
-        const btn = document.getElementById('submitBtn');
-        btn.textContent = '提交中...';
-        btn.disabled = true;
+      if (!title) { alert("标题不能为空"); return; }
 
-        const now = new Date();
-        const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
-        const rawDate = now.toISOString().split('T')[0];
+      const btn = document.getElementById('submitBtn');
+      btn.textContent = '提交中...';
+      btn.disabled = true;
 
-        let error;
-        if (editingId) {
-            const res = await supabaseClient.from('posts').update({ title, content }).eq('id', editingId);
-            error = res.error;
-        } else {
-            const res = await supabaseClient.from('posts').insert([{ id: Date.now(), title, content, date: dateStr, raw_date: rawDate }]);
-            error = res.error;
-        }
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+      const rawDate = now.toISOString().split('T')[0];
 
-        btn.disabled = false;
-        btn.textContent = editingId ? '保存修改' : '发布 Echo';
+      let error;
+      if (editingId) {
+        const res = await supabaseClient.from('posts').update({ title, content }).eq('id', editingId);
+        error = res.error;
+      } else {
+        const res = await supabaseClient.from('posts').insert([{ id: Date.now(), title, content, date: dateStr, raw_date: rawDate }]);
+        error = res.error;
+      }
 
-        if(error) alert('操作失败：' + error.message);
-        else {
-            resetEditor();
-            fetchPosts();
-        }
+      btn.disabled = false;
+      btn.textContent = editingId ? '保存修改' : '发布 Echo';
+
+      if (error) alert('操作失败：' + error.message);
+      else {
+        resetEditor();
+        fetchPosts();
+      }
     }
 
     window.restoreDefaultData = async function() {
-        if(!confirm("确定要重新写入默认文章吗？(不会删除旧数据)")) return;
-        
-        const defaultPosts = [
-          { id: 1764258833297, title: "2025/11/27", date: "2025年11月27日 · 周四", raw_date: "2025-11-27", content: "<p>有时，我觉得世界是更高维度的...</p>" },
-          { id: 1764258740402, title: "项目作品链接", date: "2025年11月27日 · 周四", raw_date: "2025-11-27", content: "<ul><li><a href='#'>我的云盘</a></li></ul>" },
-          { id: 1764258281668, title: "Hello World", date: "2025年11月27日 · 周四", raw_date: "2025-11-27", content: "<p>我是 Nolan...</p>" }
-        ];
+      if (!confirm("确定要重新写入默认文章吗？(不会删除旧数据)")) return;
 
-        let count = 0;
-        for (let post of defaultPosts) {
-            const check = await supabaseClient.from('posts').select('id').eq('id', post.id);
-            if (check.data && check.data.length === 0) {
-                await supabaseClient.from('posts').insert([post]);
-                count++;
-            }
+      const defaultPosts = [
+        { id: 1764258833297, title: "2025/11/27", date: "2025年11月27日 · 周四", raw_date: "2025-11-27", content: "<p>有时，我觉得世界是更高维度的...</p>" },
+        { id: 1764258740402, title: "项目作品链接", date: "2025年11月27日 · 周四", raw_date: "2025-11-27", content: "<ul><li><a href='#'>我的云盘</a></li></ul>" },
+        { id: 1764258281668, title: "Hello World", date: "2025年11月27日 · 周四", raw_date: "2025-11-27", content: "<p>我是 Nolan...</p>" }
+      ];
+
+      let count = 0;
+      for (let post of defaultPosts) {
+        const check = await supabaseClient.from('posts').select('id').eq('id', post.id);
+        if (check.data && check.data.length === 0) {
+          await supabaseClient.from('posts').insert([post]);
+          count++;
         }
-        alert(`恢复完成！写入了 ${count} 篇文章。`);
-        fetchPosts();
+      }
+
+      alert(`恢复完成！写入了 ${count} 篇文章。`);
+      fetchPosts();
     };
 
     window.deletePost = async function(id) {
-        if(!confirm("删除?")) return;
-        const { error } = await supabaseClient.from('posts').delete().eq('id', id);
-        if(error) alert('删除失败: ' + error.message);
-        else fetchPosts();
+      if (!confirm("删除?")) return;
+      const { error } = await supabaseClient.from('posts').delete().eq('id', id);
+      if (error) alert('删除失败: ' + error.message);
+      else fetchPosts();
     };
 
     window.editPost = function(id) {
-        const post = cachedPosts.find(p => p.id === id);
-        if (!post) return;
-        document.getElementById('postTitle').value = post.title;
-        quill.root.innerHTML = post.content;
-        document.getElementById('editingId').value = post.id;
-        document.getElementById('editorModeText').textContent = "修改内容";
-        document.getElementById('submitBtn').textContent = "保存修改";
-        document.getElementById('cancelEditBtn').style.display = "block";
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      const post = cachedPosts.find(p => p.id === id);
+      if (!post) return;
+      document.getElementById('postTitle').value = post.title;
+      quill.root.innerHTML = post.content;
+      document.getElementById('editingId').value = post.id;
+      document.getElementById('editorModeText').textContent = "修改内容";
+      document.getElementById('submitBtn').textContent = "保存修改";
+      document.getElementById('cancelEditBtn').style.display = "block";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     function resetEditor() {
-        document.getElementById('postTitle').value = '';
-        quill.root.innerHTML = '';
-        document.getElementById('editingId').value = '';
-        document.getElementById('editorModeText').textContent = "发布新内容";
-        document.getElementById('submitBtn').textContent = "发布 Echo";
-        document.getElementById('cancelEditBtn').style.display = "none";
+      document.getElementById('postTitle').value = '';
+      quill.root.innerHTML = '';
+      document.getElementById('editingId').value = '';
+      document.getElementById('editorModeText').textContent = "发布新内容";
+      document.getElementById('submitBtn').textContent = "发布 Echo";
+      document.getElementById('cancelEditBtn').style.display = "none";
     }
 
     function updateUIState() {
-        const isAdm = localStorage.getItem(AUTH_KEY) === '1';
-        document.getElementById('guestPanel').style.display = isAdm ? 'none' : 'block';
-        document.getElementById('adminPanel').style.display = isAdm ? 'block' : 'none';
-        const controls = document.querySelectorAll('.admin-controls');
-        controls.forEach(el => el.style.display = isAdm ? 'flex' : 'none');
-        
-        // 更新按钮文字
-        const btn = document.getElementById('modeSwitch');
-        if (btn) {
-            btn.innerHTML = isAdm ? '↩️' : '⚙️';
-            btn.title = isAdm ? '退出Admin' : '进入Admin';
-        }
+      const isAdm = localStorage.getItem(AUTH_KEY) === '1';
+      document.getElementById('guestPanel').style.display = isAdm ? 'none' : 'block';
+      document.getElementById('adminPanel').style.display = isAdm ? 'block' : 'none';
+      const controls = document.querySelectorAll('.admin-controls');
+      controls.forEach(el => el.style.display = isAdm ? 'flex' : 'none');
+
+      const btn = document.getElementById('modeSwitch');
+      if (btn) {
+        btn.innerHTML = isAdm ? '↩️' : '⚙️';
+        btn.title = isAdm ? '退出Admin' : '进入Admin';
+      }
     }
 
     function switchMode() {
-        if (localStorage.getItem(AUTH_KEY) === '1') {
-            localStorage.setItem(AUTH_KEY, '0');
-            resetEditor();
-        } else {
-            const pwd = prompt("请输入Admin密码 (默认: admin):");
-            if (pwd === ADMIN_PASS) {
-                localStorage.setItem(AUTH_KEY, '1');
-            } else if (pwd !== null) {
-                alert("密码错误");
-            }
+      if (localStorage.getItem(AUTH_KEY) === '1') {
+        localStorage.setItem(AUTH_KEY, '0');
+        resetEditor();
+      } else {
+        const pwd = prompt("请输入Admin密码 (默认: admin):");
+        if (pwd === ADMIN_PASS) {
+          localStorage.setItem(AUTH_KEY, '1');
+        } else if (pwd !== null) {
+          alert("密码错误");
         }
-        updateUIState();
-        renderFeed(cachedPosts); // 重新渲染以显示/隐藏按钮
+      }
+
+      updateUIState();
+      renderFeed(cachedPosts);
     }
 
-    // 启动
     window.addEventListener('DOMContentLoaded', initApp);
-
   </script>
 </body>
 </html>
