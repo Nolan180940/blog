@@ -464,14 +464,14 @@
       let lastErr = null;
       for (const url of urls) {
         try {
-          if (loadedCheck()) return;
+          if (loadedCheck && loadedCheck()) return;
           await loader(url, { timeout: RESOURCE_LOAD_TIMEOUT_MS, loadedCheck });
-          if (loadedCheck()) return;
+          if (loadedCheck && loadedCheck()) return;
         } catch (err) {
           lastErr = err;
         }
       }
-      if (!loadedCheck()) {
+      if (!loadedCheck || !loadedCheck()) {
         throw lastErr || new Error('资源加载失败');
       }
     }
