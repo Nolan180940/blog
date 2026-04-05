@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nolan — Echoes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Quill CSS: try multiple CDNs -->
+  <link id="quillCss" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
+
+
+  <style>
+    /* ─── Design Tokens ─── */
+    :root {
+      --ink:      #1a1a18;
+      --paper:    #f7f4ee;
+      --mist:     #ede9e0;
+      --stone:    #8a8478;
+      --rust:     #b85c38;
+      --gold:     #c9a84c;
+      --white:    #ffffff;
+      --serif:    'Playfair Display', 'Noto Serif SC', serif;
+      --mono:     'JetBrains Mono', monospace;
+      --body:     'Noto Serif SC', Georgia, serif;
+      --ease:     cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--body);
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── Grain Texture Overlay ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    /* ─── Header / Masthead ─── */
+    .masthead {
+      border-bottom: 1px solid var(--ink);
+      padding: 0 clamp(24px, 5vw, 80px);
+      position: sticky; top: 0;
+      background: var(--paper);
+      z-index: 100;
+    }
+    .masthead-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .site-title {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      color: var(--ink);
+    }
+    .site-title em {
+      font-style: italic;
+      color: var(--rust);
+    }
+    .masthead-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .issue-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--stone);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .admin-trigger {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      background: transparent;
+      color: var(--stone);
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s var(--ease);
+    }
+    .admin-trigger:hover { color: var(--rust); border-color: var(--rust); }
+    .admin-trigger.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+    /* ─── Layout ─── */
+    .page-wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: clamp(40px, 6vw, 80px) clamp(24px, 5vw, 80px);
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+
+    /* ─── Sidebar ─── */
+    .sidebar { position: sticky; top: 100px; }
+
+    .bio-block { padding-bottom: 32px; border-bottom: 1px solid var(--mist); margin-bottom: 28px; }
+    .bio-avatar {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Nolan&backgroundColor=b6e3f4');
+      background-size: cover;
+      background-color: var(--mist);
+      margin-bottom: 16px;
+    }
+    .bio-name {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .bio-school {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--stone);
+      margin-bottom: 14px;
+    }
+    .bio-text {
+      font-size: 0.85rem;
+      line-height: 1.75;
+      color: var(--stone);
+    }
+    .bio-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .bio-tag {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.05em;
+      padding: 3px 8px;
+      border: 1px solid var(--mist);
+      border-radius: 2px;
+      color: var(--stone);
+    }
+
+    .sidebar-section-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--stone);
+      margin-bottom: 12px;
+    }
+    .post-count {
+      font-family: var(--serif);
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .post-count-label {
+      font-size: 0.8rem;
+      color: var(--stone);
+      margin-top: 4px;
+    }
+
+    /* ─── Admin Panel (sidebar) ─── */
+    .admin-panel {
+      display: none;
+      animation: slideIn 0.3s var(--ease);
+    }
+    .admin-panel.visible { display: block; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 16px;
+    }
+    .field-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--mist);
+      border-radius: 4px;
+      background: var(--white);
+      font-family: var(--body);
+      font-size: 0.9rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 10px;
+    }
+    .field-input:focus { border-color: var(--rust); }
+
+    /* Quill overrides */
+    #editor-container {
+      background: var(--white);
+      border: 1px solid var(--mist);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      min-height: 160px;
+      font-family: var(--body);
+      font-size: 0.9rem;
+    }
+    .ql-toolbar {
+      border: 1px solid var(--mist);
+      border-radius: 4px 4px 0 0;
+      background: var(--paper);
+    }
+    .ql-container { font-family: var(--body) !important; }
+
+    .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+    .btn {
+      flex: 1;
+      padding: 9px 12px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+    .btn-primary { background: var(--ink); color: var(--paper); }
+    .btn-primary:hover { background: var(--rust); }
+    .btn-ghost { background: transparent; color: var(--stone); border-color: var(--mist); }
+    .btn-ghost:hover { border-color: var(--stone); color: var(--ink); }
+    .btn-warning { background: transparent; color: var(--rust); border-color: var(--rust); font-size: 0.65rem; }
+    .btn-warning:hover { background: var(--rust); color: var(--white); }
+
+    .panel-divider { border: none; border-top: 1px dashed var(--mist); margin: 16px 0; }
+
+    /* ─── Feed / Main ─── */
+    .feed-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 12px;
+      margin-bottom: 40px;
+    }
+    .feed-heading {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 400;
+      font-style: italic;
+    }
+    .feed-sort {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--stone);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* Loading */
+    .loading-state {
+      text-align: center;
+      padding: 60px 0;
+      color: var(--stone);
+    }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--mist);
+      border-top-color: var(--rust);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-family: var(--mono); font-size: 0.75rem; color: var(--stone); }
+
+    /* Post Items */
+    .post-item {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 0 24px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--mist);
+      position: relative;
+      animation: fadeUp 0.5s var(--ease) both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .post-item:last-child { border-bottom: none; }
+
+    .post-date-col {
+      text-align: right;
+      padding-top: 4px;
+    }
+    .post-month {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--stone);
+      display: block;
+    }
+    .post-day {
+      font-family: var(--serif);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--mist);
+      line-height: 1;
+      display: block;
+      transition: color 0.2s;
+    }
+    .post-item:hover .post-day { color: var(--rust); }
+
+    .post-body {}
+    .post-title {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 10px;
+      color: var(--ink);
+      cursor: default;
+    }
+    .post-excerpt {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--stone);
+    }
+    .post-excerpt p { margin: 0; }
+    .post-excerpt img { max-width: 100%; border-radius: 4px; margin: 8px 0; }
+    .post-excerpt blockquote {
+      border-left: 3px solid var(--rust);
+      padding-left: 14px;
+      color: var(--stone);
+      font-style: italic;
+      margin: 10px 0;
+    }
+    .post-excerpt a { color: var(--rust); text-decoration: underline; text-underline-offset: 3px; }
+
+    .post-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+    .post-tag {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--stone);
+    }
+    .admin-actions { display: none; gap: 8px; }
+    .admin-actions.visible { display: flex; }
+    .act-btn {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.04em;
+      padding: 3px 10px;
+      border-radius: 2px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+    .act-edit { color: var(--rust); border-color: var(--rust); background: transparent; }
+    .act-edit:hover { background: var(--rust); color: var(--white); }
+    .act-del { color: var(--stone); border-color: var(--mist); background: transparent; }
+    .act-del:hover { border-color: #c0392b; color: #c0392b; }
+
+    /* Empty / Error states */
+    .state-msg {
+      padding: 60px 0;
+      text-align: center;
+      color: var(--stone);
+    }
+    .state-msg-icon { font-size: 2rem; margin-bottom: 12px; }
+    .state-msg-text { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.06em; line-height: 1.8; }
+    .error-msg { color: #c0392b; }
+
+    /* ─── Global error bar ─── */
+    #globalError {
+      display: none;
+      position: fixed; top: 0; left: 0; width: 100%;
+      background: #c0392b; color: var(--white);
+      text-align: center; padding: 10px;
+      font-family: var(--mono); font-size: 0.75rem;
+      z-index: 9999;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 720px) {
+      .page-wrap { grid-template-columns: 1fr; gap: 40px; }
+      .sidebar { position: relative; top: 0; }
+      .post-item { grid-template-columns: 60px 1fr; gap: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="globalError"></div>
+
+<!-- ═══ Masthead ═══ -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="site-title" href="#">Echoes<em>.</em></a>
+    <div class="masthead-right">
+      <span class="issue-label" id="issueLabel">— Personal Space</span>
+      <button class="admin-trigger" id="adminTrigger" title="Admin">⚙</button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ Page ═══ -->
+<div class="page-wrap">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+
+    <!-- Guest bio -->
+    <div id="guestBio">
+      <div class="bio-block">
+        <div class="bio-avatar"></div>
+        <div class="bio-name">Nolan</div>
+        <div class="bio-school">New York University Shanghai</div>
+        <div class="bio-text">乐于探索哲学奥秘，寻找生命意义<br>热爱前沿科技，自由而有趣的灵魂</div>
+        <div class="bio-tags">
+          <span class="bio-tag">Philosophy</span>
+          <span class="bio-tag">Tech</span>
+          <span class="bio-tag">Life</span>
+        </div>
+      </div>
+      <div>
+        <div class="sidebar-section-label">Archives</div>
+        <div class="post-count" id="postCountNum">—</div>
+        <div class="post-count-label">篇 Echoes</div>
+      </div>
+    </div>
+
+    <!-- Admin panel -->
+    <div class="admin-panel" id="adminPanel">
+      <div class="panel-label" id="editorModeLabel">✦ New Echo</div>
+      <input type="text" class="field-input" id="postTitle" placeholder="标题 Title…" autocomplete="off">
+      <div class="ql-wrapper">
+        <div id="editor-container"></div>
+      </div>
+      <input type="hidden" id="editingId">
+      <div class="btn-row">
+        <button class="btn btn-primary" id="submitBtn">Publish</button>
+        <button class="btn btn-ghost" id="cancelEditBtn" style="display:none">Cancel</button>
+      </div>
+      <hr class="panel-divider">
+      <button class="btn btn-warning" onclick="restoreDefaultData()" style="width:100%">⟳ Restore Defaults</button>
+    </div>
+
+  </aside>
+
+  <!-- ── Feed ── -->
+  <main>
+    <div class="feed-header">
+      <span class="feed-heading">All Entries</span>
+      <span class="feed-sort" id="feedSort">Latest first</span>
+    </div>
+
+    <ul class="feed-list" id="feedList" style="list-style:none; padding:0; margin:0;">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Initializing…</div>
+      </div>
+    </ul>
+  </main>
+
+</div>
+
+<script>
+  // ─── Async script loader with fallback ───
+  function loadScript(urls) {
+    return new Promise((resolve, reject) => {
+      let idx = 0;
+      function tryNext() {
+        if (idx >= urls.length) { reject(new Error('All CDNs failed: ' + urls[0])); return; }
+        const s = document.createElement('script');
+        s.src = urls[idx++];
+        s.onload = resolve;
+        s.onerror = tryNext;
+        document.head.appendChild(s);
+      }
+      tryNext();
+    });
+  }
+
+  // ─── Config ───
+  const SUPABASE_URL = 'https://pukmwienoiknatnpzobk.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1a213aWVub2lrbmF0bnB6b2JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyOTYyMjgsImV4cCI6MjA3OTg3MjIyOH0.OXSEMos-dlXKk0exU4e-ZKTFo2vxDpm5jRMCRGqSSp0';
+  const ADMIN_PASS = 'admin';
+  const AUTH_KEY = 'is_admin_mode';
+
+  let sb = null, quill = null, cachedPosts = [];
+
+  // ─── Error ───
+  window.onerror = (msg, _u, line) => {
+    const b = document.getElementById('globalError');
+    b.style.display = 'block';
+    b.textContent = `⚠ Runtime error: ${msg} (line ${line}) — please refresh.`;
+  };
+
+  // ─── Init ───
+  async function initApp() {
+    try {
+      quill = new Quill('#editor-container', {
+        theme: 'snow',
+        placeholder: '写点什么…',
+        modules: { toolbar: [['bold','italic','underline'],['blockquote','code-block'],[{'list':'bullet'}],['link','image']] }
+      });
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      document.getElementById('adminTrigger').onclick = toggleAdmin;
+      document.getElementById('submitBtn').onclick = handleSubmit;
+      document.getElementById('cancelEditBtn').onclick = resetEditor;
+
+      await fetchPosts();
+    } catch(e) { showFeedError(e.message); }
+  }
+
+  // ─── Data ───
+  async function fetchPosts() {
+    document.getElementById('loadingText').textContent = 'Connecting…';
+    const { data, error } = await sb.from('posts').select('*').order('id', { ascending: false });
+    if (error) { showFeedError(`DB error: ${error.message}`); return; }
+    if (!data || data.length === 0) {
+      document.getElementById('feedList').innerHTML = `
+        <div class="state-msg">
+          <div class="state-msg-icon">📭</div>
+          <div class="state-msg-text">Connected — no posts yet.<br>Enter admin mode and restore defaults.</div>
+        </div>`;
+      return;
+    }
+    cachedPosts = data;
+    document.getElementById('postCountNum').textContent = data.length;
+    renderFeed(data);
+  }
+
+  function parseDateLabel(dateStr) {
+    // dateStr like "2025年11月27日 · 周四" or ISO "2025-11-27"
+    let d;
+    if (dateStr && dateStr.includes('-')) { d = new Date(dateStr + 'T00:00:00'); }
+    else if (dateStr && dateStr.includes('年')) {
+      const m = dateStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+      if (m) d = new Date(+m[1], +m[2]-1, +m[3]);
+    }
+    if (!d || isNaN(d)) return { month: '???', day: '??', year: '' };
+    return {
+      month: d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+      day:   d.getDate().toString().padStart(2,'0'),
+      year:  d.getFullYear()
+    };
+  }
+
+  function renderFeed(posts) {
+    const isAdmin = localStorage.getItem(AUTH_KEY) === '1';
+    const list = document.getElementById('feedList');
+    list.innerHTML = '';
+
+    posts.forEach((post, i) => {
+      const lbl = parseDateLabel(post.raw_date || post.date || '');
+      const li = document.createElement('li');
+      li.className = 'post-item';
+      li.style.animationDelay = `${i * 60}ms`;
+
+      const adminHtml = isAdmin ? `
+        <div class="admin-actions visible">
+          <button class="act-btn act-edit" onclick="editPost(${post.id})">Edit</button>
+          <button class="act-btn act-del" onclick="deletePost(${post.id})">Delete</button>
+        </div>` : '';
+
+      li.innerHTML = `
+        <div class="post-date-col">
+          <span class="post-month">${lbl.month}</span>
+          <span class="post-day">${lbl.day}</span>
+          <span class="post-month">${lbl.year}</span>
+        </div>
+        <div class="post-body">
+          <h2 class="post-title">${post.title}</h2>
+          <div class="post-excerpt">${post.content}</div>
+          <div class="post-footer">
+            <span class="post-tag"># echo</span>
+            ${adminHtml}
+          </div>
+        </div>`;
+      list.appendChild(li);
+    });
+  }
+
+  // ─── Admin UI ───
+  function toggleAdmin() {
+    const isAdmin = localStorage.getItem(AUTH_KEY) === '1';
+    if (isAdmin) {
+      localStorage.setItem(AUTH_KEY, '0');
+      resetEditor();
+    } else {
+      const pwd = prompt('Admin password:');
+      if (pwd === ADMIN_PASS) localStorage.setItem(AUTH_KEY, '1');
+      else if (pwd !== null) { alert('Wrong password.'); return; }
+    }
+    updateUI();
+    renderFeed(cachedPosts);
+  }
+
+  function updateUI() {
+    const isAdmin = localStorage.getItem(AUTH_KEY) === '1';
+    document.getElementById('guestBio').style.display = isAdmin ? 'none' : 'block';
+    document.getElementById('adminPanel').classList.toggle('visible', isAdmin);
+    const btn = document.getElementById('adminTrigger');
+    btn.classList.toggle('active', isAdmin);
+    btn.innerHTML = isAdmin ? '✕' : '⚙';
+    btn.title = isAdmin ? 'Exit Admin' : 'Admin';
+  }
+
+  // ─── Submit / Edit / Delete ───
+  async function handleSubmit() {
+    const title   = document.getElementById('postTitle').value.trim();
+    const content = quill.root.innerHTML;
+    const editId  = document.getElementById('editingId').value;
+    if (!title) { alert('Title required'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = '…'; btn.disabled = true;
+
+    const now = new Date();
+    const dateStr  = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+    const rawDate  = now.toISOString().split('T')[0];
+
+    let error;
+    if (editId) {
+      ({ error } = await sb.from('posts').update({ title, content }).eq('id', editId));
+    } else {
+      ({ error } = await sb.from('posts').insert([{ id: Date.now(), title, content, date: dateStr, raw_date: rawDate }]));
+    }
+
+    btn.disabled = false;
+    btn.textContent = editId ? 'Save' : 'Publish';
+
+    if (error) alert('Error: ' + error.message);
+    else { resetEditor(); fetchPosts(); }
+  }
+
+  window.editPost = function(id) {
+    const post = cachedPosts.find(p => p.id === id);
+    if (!post) return;
+    document.getElementById('postTitle').value = post.title;
+    quill.root.innerHTML = post.content;
+    document.getElementById('editingId').value = post.id;
+    document.getElementById('editorModeLabel').textContent = '✦ Editing';
+    document.getElementById('submitBtn').textContent = 'Save';
+    document.getElementById('cancelEditBtn').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.deletePost = async function(id) {
+    if (!confirm('Delete this post?')) return;
+    const { error } = await sb.from('posts').delete().eq('id', id);
+    if (error) alert('Error: ' + error.message);
+    else fetchPosts();
+  };
+
+  function resetEditor() {
+    document.getElementById('postTitle').value = '';
+    quill.root.innerHTML = '';
+    document.getElementById('editingId').value = '';
+    document.getElementById('editorModeLabel').textContent = '✦ New Echo';
+    document.getElementById('submitBtn').textContent = 'Publish';
+    document.getElementById('cancelEditBtn').style.display = 'none';
+  }
+
+  // ─── Restore Defaults ───
+  window.restoreDefaultData = async function() {
+    if (!confirm('Restore default posts? (existing posts are kept)')) return;
+    const defaults = [
+      { id: 1764258833297, title: "2025/11/27", date: "2025年11月27日", raw_date: "2025-11-27", content: "<p>有时，我觉得世界是更高维度的...</p>" },
+      { id: 1764258740402, title: "项目作品链接",  date: "2025年11月27日", raw_date: "2025-11-27", content: "<ul><li><a href='#'>我的云盘</a></li></ul>" },
+      { id: 1764258281668, title: "Hello World",   date: "2025年11月27日", raw_date: "2025-11-27", content: "<p>我是 Nolan...</p>" }
+    ];
+    let count = 0;
+    for (const p of defaults) {
+      const { data } = await sb.from('posts').select('id').eq('id', p.id);
+      if (data && data.length === 0) { await sb.from('posts').insert([p]); count++; }
+    }
+    alert(`Done. ${count} post(s) restored.`);
+    fetchPosts();
+  };
+
+  function showFeedError(msg) {
+    document.getElementById('feedList').innerHTML = `
+      <div class="state-msg error-msg">
+        <div class="state-msg-icon">⚠</div>
+        <div class="state-msg-text">${msg}</div>
+      </div>`;
+  }
+
+  // ─── Boot ───
+  window.addEventListener('DOMContentLoaded', async () => {
+    updateUI();
+    try {
+      await loadScript([
+        'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
+        'https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js',
+        'https://cdn.bootcdn.net/ajax/libs/quill/1.3.6/quill.min.js'
+      ]);
+      await loadScript([
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+        'https://unpkg.com/@supabase/supabase-js@2'
+      ]);
+    } catch(e) {
+      showFeedError('依赖库加载失败，请检查网络后刷新重试。<br><small>' + e.message + '</small>');
+      return;
+    }
+    initApp();
+  });
+</script>
+</body>
+</html>
