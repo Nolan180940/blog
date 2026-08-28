@@ -455,11 +455,13 @@
 
   /* ──── Giscus config (fill in after setup) ──── */
   const GISCUS_CFG = {
-    repo:       'YOUR_GITHUB_USER/YOUR_REPO',
-    repoId:     'YOUR_REPO_ID',
+    repo:       'Nolan180940/blog',
+    repoId:     'R_kgDOQeNjaQ',
     category:   'Announcements',
-    categoryId: 'YOUR_CATEGORY_ID',
-    mapping:    'pathname',
+    categoryId: 'DIC_kwDOQeNjac4DEZQa',
+    // 'url' mapping (full URL incl. hash) — REQUIRED for hash-routed SPA.
+    // 'pathname' would map every post to the same discussion (/blog/).
+    mapping:    'url',
     theme:      'light',
     lang:       'zh-CN'
   };
