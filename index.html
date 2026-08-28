@@ -710,7 +710,8 @@
    *  DATA FETCHING
    * ═══════════════════════════════════════════════ */
   async function fetchAllPosts() {
-    document.getElementById('loadingText').textContent = 'Connecting…';
+    const loadingEl = document.getElementById('loadingText');
+    if (loadingEl) loadingEl.textContent = 'Connecting…';
     try {
       if (await checkEdgeFnAvailable()) {
         const data = await edgeRequest({ op: 'fetch' });
