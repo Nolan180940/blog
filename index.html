@@ -445,6 +445,8 @@
   const SUPABASE_URL = 'https://pukmwienoiknatnpzobk.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1a213aWVub2lrbmF0bnB6b2JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyOTYyMjgsImV4cCI6MjA3OTg3MjIyOH0.OXSEMos-dlXKk0exU4e-ZKTFo2vxDpm5jRMCRGqSSp0';
   const EDGE_FN_URL = SUPABASE_URL + '/functions/v1';
+  // Supabase Edge Function gateway requires an Authorization header on POST
+  const AUTH_HEADER = { 'Authorization': 'Bearer ' + SUPABASE_KEY };
 
   /* ──── Giscus config (fill in after setup) ──── */
   const GISCUS_CFG = {
@@ -487,6 +489,7 @@
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...AUTH_HEADER,
         ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})
       },
       body: JSON.stringify(body),
@@ -500,7 +503,7 @@
   async function checkEdgeFnAvailable() {
     if (edgeFnAvailable !== null) return edgeFnAvailable;
     try {
-      const resp = await fetch(EDGE_FN_URL + '/posts?op=ping', { credentials: 'include' });
+      const resp = await fetch(EDGE_FN_URL + '/posts?op=ping', { headers: AUTH_HEADER, credentials: 'include' });
       edgeFnAvailable = resp.ok;
     } catch {
       edgeFnAvailable = false;
@@ -514,7 +517,11 @@
   async function checkSession() {
     if (!(await checkEdgeFnAvailable())) return false;
     try {
-      const data = await edgeRequest({ op: 'session' });
+      const resp = await fetch(EDGE_FN_URL + '/posts?op=session', {
+        headers: AUTH_HEADER, credentials: 'include'
+      });
+      if (!resp.ok) return false;
+      const data = await resp.json();
       isAdmin = data.authenticated;
       csrfToken = data.csrfToken || '';
       return isAdmin;

@@ -83,10 +83,10 @@ async function verifyPassword(input: string, storedHash: string): Promise<boolea
   // Deno doesn't have bcrypt built-in; use Web Crypto with a fallback:
   // We stored a SHA-256 salted hash as: salt.sha256hex
   if (storedHash.includes("$2")) {
-    // bcrypt hash — use a lightweight approach
-    // Import bcrypt from esm.sh
-    const bcrypt = await import("https://esm.sh/bcryptjs@2.4.3");
-    return bcrypt.compare(input, storedHash);
+    // bcrypt hash — bcryptjs is CommonJS; the real function is on .default
+    const bcryptMod: any = await import("npm:bcryptjs@2.4.3");
+    const bcrypt = bcryptMod.default ?? bcryptMod;
+    return bcrypt.compareSync(input, storedHash);
   }
   // Legacy format: salt.hex
   const [salt, hash] = storedHash.split(".");
