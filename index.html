@@ -474,7 +474,7 @@
     lang:       'zh-CN'
   };
 
-  let sb = null, cachedPosts = [], isAdmin = false, csrfToken = '', edgeFnAvailable = null;
+  let sb = null, cachedPosts = [], isAdmin = false, csrfToken = '', edgeFnAvailable = null, currentPostId = '';
 
   /* ═══════════════════════════════════════════════
    *  ERROR HANDLER
@@ -626,13 +626,14 @@
       detailView.classList.add('visible');
       const post = cachedPosts.find(p => String(p.id) === String(route.id));
       if (post) {
+        currentPostId = String(post.id);
         document.getElementById('detailTitle').textContent = post.title;
         document.getElementById('detailDate').textContent = post.raw_date || post.date || '';
         const src = post.content_md || '';
         document.getElementById('detailContent').innerHTML = src ? renderMarkdown(src) : (post.content || '');
         renderMath(document.getElementById('detailContent'));
         document.title = post.title + ' — Echoes';
-        // If giscus iframe already exists (SPA navigation), just tell it the new URL;
+        // If giscus iframe already exists (SPA navigation), just tell it the new term;
         // otherwise mount it fresh.
         if (document.querySelector('iframe.giscus-frame')) {
           updateGiscus();
@@ -640,6 +641,7 @@
           mountGiscus();
         }
       } else {
+        currentPostId = '';
         document.getElementById('detailTitle').textContent = '404';
         document.getElementById('detailDate').textContent = '';
         document.getElementById('detailContent').innerHTML = '<p>This post does not exist.</p>';
@@ -648,6 +650,7 @@
       }
       window.scrollTo({ top: 0 });
     } else {
+      currentPostId = '';
       feedView.style.display = '';
       detailView.classList.remove('visible');
       document.title = 'Nolan — Echoes';
@@ -962,6 +965,9 @@
   /* ═══════════════════════════════════════════════
    *  GISCUS
    * ═══════════════════════════════════════════════ */
+  // giscus 'url'/'pathname' mappings DON'T include the URL hash, so with
+  // hash routing every post would share ONE discussion. Use 'specific'
+  // mapping with a unique term per post: "post-<id>".
   function mountGiscus() {
     const el = document.getElementById('giscusSection');
     el.innerHTML = '';
@@ -980,7 +986,8 @@
     s.setAttribute('data-repo-id', GISCUS_CFG.repoId);
     s.setAttribute('data-category', GISCUS_CFG.category);
     s.setAttribute('data-category-id', GISCUS_CFG.categoryId);
-    s.setAttribute('data-mapping', GISCUS_CFG.mapping);
+    s.setAttribute('data-mapping', 'specific');
+    s.setAttribute('data-term', 'post-' + currentPostId);
     s.setAttribute('data-theme', GISCUS_CFG.theme);
     s.setAttribute('data-lang', GISCUS_CFG.lang);
     s.crossOrigin = 'anonymous'; s.async = true;
@@ -989,13 +996,12 @@
   function unmountGiscus() { document.getElementById('giscusSection').innerHTML = ''; }
 
   // Notify the giscus iframe to load a different discussion when the route
-  // changes WITHOUT a full page reload (hash navigation). Without this, the
-  // iframe keeps showing the first post's comments on every post.
+  // changes WITHOUT a full page reload (hash navigation).
   function updateGiscus() {
     const iframe = document.querySelector('iframe.giscus-frame');
     if (!iframe) return;
     iframe.contentWindow.postMessage(
-      { giscus: { setConfig: { url: location.href } } },
+      { giscus: { setConfig: { term: 'post-' + currentPostId } } },
       'https://giscus.app'
     );
   }
