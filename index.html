@@ -84,7 +84,7 @@
       position: relative; z-index: 1;
       display: grid;
       grid-template-columns: 280px 1fr;
-      gap: clamp(40px, 6vw, 80px);
+      gap: clamp(72px, 9vw, 140px);
       align-items: start;
     }
 
@@ -287,7 +287,7 @@
       font-family: var(--mono); font-size: 0.65rem;
       letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone); margin-bottom: 10px;
     }
-    /* 7 rows (weekdays) × N columns (weeks); left-aligned, no stretching */
+    /* 7 rows (weekdays) × N columns (weeks); left-aligned */
     .heatmap-grid {
       display: grid;
       grid-template-rows: repeat(7, 10px);
@@ -632,7 +632,13 @@
         document.getElementById('detailContent').innerHTML = src ? renderMarkdown(src) : (post.content || '');
         renderMath(document.getElementById('detailContent'));
         document.title = post.title + ' — Echoes';
-        mountGiscus();
+        // If giscus iframe already exists (SPA navigation), just tell it the new URL;
+        // otherwise mount it fresh.
+        if (document.querySelector('iframe.giscus-frame')) {
+          updateGiscus();
+        } else {
+          mountGiscus();
+        }
       } else {
         document.getElementById('detailTitle').textContent = '404';
         document.getElementById('detailDate').textContent = '';
@@ -981,6 +987,18 @@
     el.appendChild(s);
   }
   function unmountGiscus() { document.getElementById('giscusSection').innerHTML = ''; }
+
+  // Notify the giscus iframe to load a different discussion when the route
+  // changes WITHOUT a full page reload (hash navigation). Without this, the
+  // iframe keeps showing the first post's comments on every post.
+  function updateGiscus() {
+    const iframe = document.querySelector('iframe.giscus-frame');
+    if (!iframe) return;
+    iframe.contentWindow.postMessage(
+      { giscus: { setConfig: { url: location.href } } },
+      'https://giscus.app'
+    );
+  }
 
   /* ═══════════════════════════════════════════════
    *  INIT
