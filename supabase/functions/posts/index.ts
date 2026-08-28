@@ -62,7 +62,9 @@ function sessionCookie(name: string, value: string, maxAge: number): string {
     `Path=/`,
     `HttpOnly`,
     `Secure`,
-    `SameSite=Strict`,
+    // Blog origin (github.io / localhost) ≠ supabase.co → cross-site request.
+    // SameSite=Strict/None — Strict would block the cookie entirely here.
+    `SameSite=None`,
     `Max-Age=${maxAge}`,
   ];
   return `${name}=${encodeURIComponent(value)}; ${attrs.join("; ")}`;
@@ -99,13 +101,21 @@ async function verifyPassword(input: string, storedHash: string): Promise<boolea
 }
 
 /* ─── CORS headers ─── */
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, X-CSRF-Token",
-};
+function buildCors(req: Request): Record<string, string> {
+  // Credentials ('include') require the EXACT origin, never "*"
+  const origin = req.headers.get("origin") || "*";
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, X-CSRF-Token",
+    "Vary": "Origin",
+  };
+}
 
 serve(async (req: Request): Promise<Response> => {
+  const CORS = buildCors(req);
+
   // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: CORS });
