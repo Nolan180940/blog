@@ -79,12 +79,12 @@
 
     /* ─── Layout ─── */
     .page-wrap {
-      max-width: 1080px; margin: 0 auto;
+      max-width: 1200px; margin: 0 auto;
       padding: clamp(40px, 6vw, 80px) clamp(24px, 5vw, 80px);
       position: relative; z-index: 1;
       display: grid;
-      grid-template-columns: 200px 1fr;
-      gap: 0.5rem;
+      grid-template-columns: 280px 1fr;
+      gap: clamp(40px, 6vw, 80px);
       align-items: start;
     }
 
@@ -278,18 +278,22 @@
     .katex-display { margin: 1.2em 0; overflow-x: auto; }
     .katex { font-size: 1.05em; }
 
-    /* ─── Heatmap ─── */
-    .heatmap-section { margin-bottom: 28px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    /* ─── Heatmap (sidebar) ─── */
+    .heatmap-section {
+      margin-top: 28px; padding-top: 28px;
+      border-top: 1px solid var(--mist);
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
     .heatmap-label {
       font-family: var(--mono); font-size: 0.65rem;
       letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone); margin-bottom: 10px;
     }
     .heatmap-grid {
-      display: inline-grid; grid-template-rows: repeat(7, 11px);
-      grid-auto-flow: column; grid-auto-columns: 11px; gap: 3px;
+      display: inline-grid; grid-template-rows: repeat(7, 8px);
+      grid-auto-flow: column; grid-auto-columns: 8px; gap: 2px;
     }
     .heatmap-cell {
-      width: 11px; height: 11px; border-radius: 2px;
+      width: 8px; height: 8px; border-radius: 1.5px;
       outline: 1px solid rgba(0,0,0,0.04); outline-offset: -1px; transition: outline-color 0.15s;
     }
     .heatmap-cell:hover { outline-color: var(--stone); }
@@ -373,6 +377,9 @@
       </div>
     </div>
 
+    <!-- Heatmap (sidebar) -->
+    <div class="heatmap-section" id="heatmapSection"></div>
+
     <div class="admin-panel" id="adminPanel">
       <div class="panel-label" id="editorModeLabel">✦ New Echo</div>
       <input type="text" class="field-input" id="postTitle" placeholder="标题 Title…" autocomplete="off">
@@ -390,8 +397,6 @@
 
   <!-- ── Main Content ── -->
   <main>
-    <div class="heatmap-section" id="heatmapSection"></div>
-
     <!-- Feed List View -->
     <div id="feedListView">
       <div class="feed-header">
@@ -1008,15 +1013,16 @@
         loadScript([
           'https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js',
           'https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.2/markdown-it.min.js'
-        ]),
-        loadScript([
-          'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js',
-          'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js'
-        ]),
-        loadScript([
-          'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js',
-          'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js'
         ])
+      ]);
+      // KaTeX must load BEFORE auto-render (auto-render captures katex at load time)
+      await loadScript([
+        'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js'
+      ]);
+      await loadScript([
+        'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js'
       ]);
     } catch(e) {
       showFeedError('依赖库加载失败，请检查网络后刷新重试。<br><small>' + e.message + '</small>');
