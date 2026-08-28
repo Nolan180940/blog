@@ -219,7 +219,7 @@
     .post-title { font-family: var(--serif); font-size: 1.3rem; font-weight: 700; line-height: 1.3; margin-bottom: 6px; color: var(--ink); }
     .post-excerpt {
       font-size: 0.85rem; line-height: 1.65; color: var(--stone);
-      display: -webkit-box; -webkit-line-clamp: 3;
+      display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
       -webkit-box-orient: vertical; overflow: hidden;
     }
     .post-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
@@ -278,22 +278,28 @@
     .katex-display { margin: 1.2em 0; overflow-x: auto; }
     .katex { font-size: 1.05em; }
 
-    /* ─── Heatmap (sidebar) ─── */
+    /* ─── Heatmap (sidebar, full-width) ─── */
     .heatmap-section {
       margin-top: 28px; padding-top: 28px;
       border-top: 1px solid var(--mist);
-      overflow-x: auto; -webkit-overflow-scrolling: touch;
     }
     .heatmap-label {
       font-family: var(--mono); font-size: 0.65rem;
       letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone); margin-bottom: 10px;
     }
+    /* 7 rows (weekdays) × N columns (weeks); cells stretch to fill sidebar width.
+       Cells are small squares; the grid itself does NOT stretch cells vertically. */
     .heatmap-grid {
-      display: inline-grid; grid-template-rows: repeat(7, 8px);
-      grid-auto-flow: column; grid-auto-columns: 8px; gap: 2px;
+      display: grid;
+      grid-template-rows: repeat(7, 10px);
+      grid-auto-flow: column;
+      grid-auto-columns: 10px;
+      gap: 3px;
+      width: 100%;
+      justify-content: space-between;
     }
     .heatmap-cell {
-      width: 8px; height: 8px; border-radius: 1.5px;
+      width: 10px; height: 10px; border-radius: 2px;
       outline: 1px solid rgba(0,0,0,0.04); outline-offset: -1px; transition: outline-color 0.15s;
     }
     .heatmap-cell:hover { outline-color: var(--stone); }
@@ -303,7 +309,10 @@
       display: flex; align-items: center; gap: 4px; margin-top: 8px;
       font-family: var(--mono); font-size: 0.6rem; color: var(--stone);
     }
-    .heatmap-legend .heatmap-cell { cursor: default; }
+    .heatmap-swatch {
+      display: inline-block; width: 10px; height: 10px;
+      border-radius: 2px; outline: 1px solid rgba(0,0,0,0.04); outline-offset: -1px;
+    }
 
     /* ─── States ─── */
     .state-msg { padding: 60px 0; text-align: center; color: var(--stone); }
@@ -915,13 +924,16 @@
     const endDate = new Date(today);
     endDate.setDate(endDate.getDate() + (6 - endDate.getDay())); // Saturday of this week
 
+    // ~26 weeks (half year) — fits sidebar width without scrolling
+    const WEEKS = 26;
     const startDate = new Date(endDate);
-    startDate.setDate(startDate.getDate() - (52 * 7) - startDate.getDay());
+    startDate.setDate(startDate.getDate() - (WEEKS * 7) - startDate.getDay());
 
+    // Legend cells must stay small — exclude from stretched grid cells
     let cells = '';
     const d = new Date(startDate);
     while (d <= endDate) {
-      const ds = d.toISOString().split('T')[0];
+      const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
       const c = counts[ds] || 0;
       const l = c >= 3 ? 4 : c === 2 ? 3 : c === 1 ? 2 : 0;
       cells += `<div class="heatmap-cell heatmap-l${l}" title="${c} post${c!==1?'s':''} · ${ds}"></div>`;
@@ -933,11 +945,11 @@
       <div class="heatmap-grid">${cells}</div>
       <div class="heatmap-legend">
         Less
-        <div class="heatmap-cell heatmap-l0"></div>
-        <div class="heatmap-cell heatmap-l1"></div>
-        <div class="heatmap-cell heatmap-l2"></div>
-        <div class="heatmap-cell heatmap-l3"></div>
-        <div class="heatmap-cell heatmap-l4"></div>
+        <span class="heatmap-swatch" style="background:#ebedf0"></span>
+        <span class="heatmap-swatch" style="background:#9be9a8"></span>
+        <span class="heatmap-swatch" style="background:#40c463"></span>
+        <span class="heatmap-swatch" style="background:#30a14e"></span>
+        <span class="heatmap-swatch" style="background:#39d353"></span>
         More
       </div>`;
   }

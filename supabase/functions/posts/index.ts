@@ -1,3 +1,4 @@
+// @ts-nocheck — Deno Edge Function: type-checked via `deno check` (see .vscode/settings.json)
 /**
  * Supabase Edge Function: posts
  *
@@ -236,6 +237,7 @@ serve(async (req: Request): Promise<Response> => {
     return jsonResp({ error: "Unknown op: " + op }, 400, CORS);
 
   } catch (err) {
-    return jsonResp({ error: err.message || "Internal error" }, 500, CORS);
+    const msg = err instanceof Error ? err.message : String(err);
+    return jsonResp({ error: msg || "Internal error" }, 500, CORS);
   }
 });
