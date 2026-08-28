@@ -6,9 +6,7 @@
   <title>Nolan — Echoes</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <!-- Quill CSS: try multiple CDNs -->
-  <link id="quillCss" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 
   <style>
     /* ─── Design Tokens ─── */
@@ -37,64 +35,42 @@
       overflow-x: hidden;
     }
 
-    /* ─── Grain Texture Overlay ─── */
+    /* ─── Grain Texture ─── */
     body::before {
       content: '';
       position: fixed; inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.5;
+      pointer-events: none; z-index: 0; opacity: 0.5;
     }
 
-    /* ─── Header / Masthead ─── */
+    /* ─── Masthead ─── */
     .masthead {
       border-bottom: 1px solid var(--ink);
       padding: 0 clamp(24px, 5vw, 80px);
       position: sticky; top: 0;
-      background: var(--paper);
-      z-index: 100;
+      background: var(--paper); z-index: 100;
     }
     .masthead-inner {
-      max-width: 1080px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 64px;
+      max-width: 1080px; margin: 0 auto;
+      display: flex; align-items: center;
+      justify-content: space-between; height: 64px;
     }
     .site-title {
-      font-family: var(--serif);
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      text-decoration: none;
-      color: var(--ink);
+      font-family: var(--serif); font-size: 1.5rem;
+      font-weight: 700; letter-spacing: -0.01em;
+      text-decoration: none; color: var(--ink); cursor: pointer;
     }
-    .site-title em {
-      font-style: italic;
-      color: var(--rust);
-    }
-    .masthead-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
+    .site-title em { font-style: italic; color: var(--rust); }
+    .masthead-right { display: flex; align-items: center; gap: 20px; }
     .issue-label {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--stone);
-      letter-spacing: 0.08em;
+      font-family: var(--mono); font-size: 0.7rem;
+      color: var(--stone); letter-spacing: 0.08em;
       text-transform: uppercase;
     }
     .admin-trigger {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      border: 1px solid currentColor;
-      background: transparent;
-      color: var(--stone);
-      cursor: pointer;
-      font-size: 0.85rem;
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid currentColor; background: transparent;
+      color: var(--stone); cursor: pointer; font-size: 0.85rem;
       display: flex; align-items: center; justify-content: center;
       transition: all 0.2s var(--ease);
     }
@@ -103,142 +79,76 @@
 
     /* ─── Layout ─── */
     .page-wrap {
-      max-width: 1080px;
-      margin: 0 auto;
+      max-width: 1080px; margin: 0 auto;
       padding: clamp(40px, 6vw, 80px) clamp(24px, 5vw, 80px);
       position: relative; z-index: 1;
       display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 60px;
+      grid-template-columns: 200px 1fr;
+      gap: 0.5rem;
       align-items: start;
     }
 
     /* ─── Sidebar ─── */
     .sidebar { position: sticky; top: 100px; }
-
     .bio-block { padding-bottom: 32px; border-bottom: 1px solid var(--mist); margin-bottom: 28px; }
     .bio-avatar {
-      width: 56px; height: 56px;
-      border-radius: 50%;
+      width: 56px; height: 56px; border-radius: 50%;
       background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Nolan&backgroundColor=b6e3f4');
-      background-size: cover;
-      background-color: var(--mist);
-      margin-bottom: 16px;
+      background-size: cover; background-color: var(--mist); margin-bottom: 16px;
     }
-    .bio-name {
-      font-family: var(--serif);
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
+    .bio-name { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
     .bio-school {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--stone);
-      margin-bottom: 14px;
+      font-family: var(--mono); font-size: 0.65rem;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--stone); margin-bottom: 14px;
     }
-    .bio-text {
-      font-size: 0.85rem;
-      line-height: 1.75;
-      color: var(--stone);
-    }
+    .bio-text { font-size: 0.85rem; line-height: 1.75; color: var(--stone); }
     .bio-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
     .bio-tag {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.05em;
-      padding: 3px 8px;
-      border: 1px solid var(--mist);
-      border-radius: 2px;
-      color: var(--stone);
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.05em; padding: 3px 8px;
+      border: 1px solid var(--mist); border-radius: 2px; color: var(--stone);
     }
-
     .sidebar-section-label {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--stone);
-      margin-bottom: 12px;
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); margin-bottom: 12px;
     }
-    .post-count {
-      font-family: var(--serif);
-      font-size: 2.5rem;
-      font-weight: 700;
-      line-height: 1;
-      color: var(--ink);
-    }
-    .post-count-label {
-      font-size: 0.8rem;
-      color: var(--stone);
-      margin-top: 4px;
-    }
+    .post-count { font-family: var(--serif); font-size: 2.5rem; font-weight: 700; line-height: 1; color: var(--ink); }
+    .post-count-label { font-size: 0.8rem; color: var(--stone); margin-top: 4px; }
 
-    /* ─── Admin Panel (sidebar) ─── */
-    .admin-panel {
-      display: none;
-      animation: slideIn 0.3s var(--ease);
-    }
+    /* ─── Admin Panel ─── */
+    .admin-panel { display: none; animation: slideIn 0.3s var(--ease); }
     .admin-panel.visible { display: block; }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
+    @keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
     .panel-label {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--rust);
-      margin-bottom: 16px;
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--rust); margin-bottom: 16px;
     }
     .field-input {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--mist);
-      border-radius: 4px;
-      background: var(--white);
-      font-family: var(--body);
-      font-size: 0.9rem;
-      color: var(--ink);
-      outline: none;
-      transition: border-color 0.2s;
-      margin-bottom: 10px;
+      width: 100%; padding: 10px 12px;
+      border: 1px solid var(--mist); border-radius: 4px;
+      background: var(--white); font-family: var(--body);
+      font-size: 0.9rem; color: var(--ink); outline: none;
+      transition: border-color 0.2s; margin-bottom: 10px;
     }
     .field-input:focus { border-color: var(--rust); }
-
-    /* Quill overrides */
-    #editor-container {
-      background: var(--white);
-      border: 1px solid var(--mist);
-      border-top: none;
-      border-radius: 0 0 4px 4px;
-      min-height: 160px;
-      font-family: var(--body);
-      font-size: 0.9rem;
+    .md-editor {
+      width: 100%; min-height: 180px; padding: 10px 12px;
+      border: 1px solid var(--mist); border-radius: 4px;
+      background: var(--white); font-family: var(--mono);
+      font-size: 0.82rem; line-height: 1.6; color: var(--ink);
+      outline: none; resize: vertical; transition: border-color 0.2s;
+      tab-size: 2;
     }
-    .ql-toolbar {
-      border: 1px solid var(--mist);
-      border-radius: 4px 4px 0 0;
-      background: var(--paper);
-    }
-    .ql-container { font-family: var(--body) !important; }
-
+    .md-editor:focus { border-color: var(--rust); }
     .btn-row { display: flex; gap: 8px; margin-top: 12px; }
     .btn {
-      flex: 1;
-      padding: 9px 12px;
-      border: 1px solid transparent;
-      border-radius: 4px;
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s var(--ease);
+      flex: 1; padding: 9px 12px;
+      border: 1px solid transparent; border-radius: 4px;
+      font-family: var(--mono); font-size: 0.72rem;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s var(--ease);
     }
     .btn-primary { background: var(--ink); color: var(--paper); }
     .btn-primary:hover { background: var(--rust); }
@@ -246,163 +156,160 @@
     .btn-ghost:hover { border-color: var(--stone); color: var(--ink); }
     .btn-warning { background: transparent; color: var(--rust); border-color: var(--rust); font-size: 0.65rem; }
     .btn-warning:hover { background: var(--rust); color: var(--white); }
-
+    .btn-danger { background: transparent; color: #c0392b; border-color: #c0392b; font-size: 0.65rem; }
+    .btn-danger:hover { background: #c0392b; color: var(--white); }
     .panel-divider { border: none; border-top: 1px dashed var(--mist); margin: 16px 0; }
 
-    /* ─── Feed / Main ─── */
+    /* ─── Login Modal ─── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(26,26,24,0.35); backdrop-filter: blur(3px);
+      z-index: 1000; justify-content: center; align-items: center;
+    }
+    .modal-overlay.visible { display: flex; }
+    .login-card {
+      background: var(--paper); border: 1px solid var(--ink);
+      padding: 36px 32px; border-radius: 4px;
+      width: 340px; max-width: 90vw; animation: slideIn 0.3s var(--ease);
+    }
+    .login-title { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; margin-bottom: 20px; }
+    .login-error {
+      display: none; font-family: var(--mono);
+      font-size: 0.7rem; color: #c0392b; margin-bottom: 10px;
+    }
+    .login-error.visible { display: block; }
+    .login-card .field-input { margin-bottom: 16px; }
+    .login-card .btn-row { margin-top: 0; }
+
+    /* ─── Feed ─── */
     .feed-header {
-      display: flex;
-      align-items: baseline;
+      display: flex; align-items: baseline;
       justify-content: space-between;
       border-bottom: 2px solid var(--ink);
-      padding-bottom: 12px;
-      margin-bottom: 40px;
+      padding-bottom: 12px; margin-bottom: 40px;
     }
-    .feed-heading {
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      font-weight: 400;
-      font-style: italic;
-    }
-    .feed-sort {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      color: var(--stone);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
+    .feed-heading { font-family: var(--serif); font-size: 1.1rem; font-weight: 400; font-style: italic; }
+    .feed-sort { font-family: var(--mono); font-size: 0.65rem; color: var(--stone); letter-spacing: 0.08em; text-transform: uppercase; }
 
     /* Loading */
-    .loading-state {
-      text-align: center;
-      padding: 60px 0;
-      color: var(--stone);
-    }
+    .loading-state { text-align: center; padding: 60px 0; color: var(--stone); }
     .spinner {
       width: 20px; height: 20px;
-      border: 2px solid var(--mist);
-      border-top-color: var(--rust);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      display: inline-block;
-      margin-bottom: 12px;
+      border: 2px solid var(--mist); border-top-color: var(--rust);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+      display: inline-block; margin-bottom: 12px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-family: var(--mono); font-size: 0.75rem; color: var(--stone); }
 
-    /* Post Items */
+    /* ─── Post List Items ─── */
     .post-item {
-      display: grid;
-      grid-template-columns: 80px 1fr;
-      gap: 0 24px;
-      padding: 28px 0;
-      border-bottom: 1px solid var(--mist);
-      position: relative;
-      animation: fadeUp 0.5s var(--ease) both;
+      display: grid; grid-template-columns: 80px 1fr; gap: 0 24px;
+      padding-bottom: 1.5rem; border-bottom: 1px solid var(--mist);
+      position: relative; animation: fadeUp 0.5s var(--ease) both;
+      cursor: pointer; transition: background 0.15s;
     }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    .post-item:hover { background: rgba(0,0,0,0.01); }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
     .post-item:last-child { border-bottom: none; }
-
-    .post-date-col {
-      text-align: right;
-      padding-top: 4px;
-    }
-    .post-month {
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--stone);
-      display: block;
-    }
-    .post-day {
-      font-family: var(--serif);
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--mist);
-      line-height: 1;
-      display: block;
-      transition: color 0.2s;
-    }
+    .post-date-col { text-align: right; padding-top: 4px; }
+    .post-month { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone); display: block; }
+    .post-day { font-family: var(--serif); font-size: 1.8rem; font-weight: 700; color: var(--mist); line-height: 1; display: block; transition: color 0.2s; }
     .post-item:hover .post-day { color: var(--rust); }
-
-    .post-body {}
-    .post-title {
-      font-family: var(--serif);
-      font-size: 1.3rem;
-      font-weight: 700;
-      line-height: 1.3;
-      margin-bottom: 10px;
-      color: var(--ink);
-      cursor: default;
-    }
+    .post-title { font-family: var(--serif); font-size: 1.3rem; font-weight: 700; line-height: 1.3; margin-bottom: 6px; color: var(--ink); }
     .post-excerpt {
-      font-size: 0.88rem;
-      line-height: 1.7;
-      color: var(--stone);
+      font-size: 0.85rem; line-height: 1.65; color: var(--stone);
+      display: -webkit-box; -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical; overflow: hidden;
     }
-    .post-excerpt p { margin: 0; }
-    .post-excerpt img { max-width: 100%; border-radius: 4px; margin: 8px 0; }
-    .post-excerpt blockquote {
-      border-left: 3px solid var(--rust);
-      padding-left: 14px;
-      color: var(--stone);
-      font-style: italic;
-      margin: 10px 0;
-    }
-    .post-excerpt a { color: var(--rust); text-decoration: underline; text-underline-offset: 3px; }
-
-    .post-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 12px;
-    }
-    .post-tag {
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--stone);
-    }
+    .post-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    .post-tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone); }
     .admin-actions { display: none; gap: 8px; }
     .admin-actions.visible { display: flex; }
     .act-btn {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.04em;
-      padding: 3px 10px;
-      border-radius: 2px;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.15s;
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.04em; padding: 3px 10px;
+      border-radius: 2px; cursor: pointer; border: 1px solid transparent; transition: all 0.15s;
     }
     .act-edit { color: var(--rust); border-color: var(--rust); background: transparent; }
     .act-edit:hover { background: var(--rust); color: var(--white); }
     .act-del { color: var(--stone); border-color: var(--mist); background: transparent; }
     .act-del:hover { border-color: #c0392b; color: #c0392b; }
 
-    /* Empty / Error states */
-    .state-msg {
-      padding: 60px 0;
-      text-align: center;
-      color: var(--stone);
+    /* ─── Detail Page ─── */
+    .detail-view { display: none; }
+    .detail-view.visible { display: block; }
+    .detail-header { border-bottom: 2px solid var(--ink); padding-bottom: 20px; margin-bottom: 32px; }
+    .detail-title { font-family: var(--serif); font-size: 2rem; font-weight: 700; line-height: 1.3; margin-bottom: 10px; }
+    .detail-date { font-family: var(--mono); font-size: 0.7rem; color: var(--stone); letter-spacing: 0.06em; }
+    .detail-content { font-size: 0.95rem; line-height: 1.85; }
+    .detail-content p { margin-bottom: 1em; }
+    .detail-content h1, .detail-content h2, .detail-content h3,
+    .detail-content h4, .detail-content h5, .detail-content h6 {
+      font-family: var(--serif); font-weight: 700; margin: 1.5em 0 0.6em; line-height: 1.3;
     }
+    .detail-content h1 { font-size: 1.6rem; } .detail-content h2 { font-size: 1.35rem; } .detail-content h3 { font-size: 1.15rem; }
+    .detail-content pre {
+      background: var(--ink); color: #e0ddd5; padding: 16px 20px;
+      border-radius: 4px; overflow-x: auto;
+      font-family: var(--mono); font-size: 0.82rem; line-height: 1.6; margin: 1.2em 0;
+    }
+    .detail-content code { font-family: var(--mono); font-size: 0.85em; background: var(--mist); padding: 2px 5px; border-radius: 2px; }
+    .detail-content pre code { background: none; padding: 0; color: inherit; }
+    .detail-content blockquote { border-left: 3px solid var(--rust); padding-left: 16px; color: var(--stone); font-style: italic; margin: 1.2em 0; }
+    .detail-content a { color: var(--rust); text-decoration: underline; text-underline-offset: 3px; }
+    .detail-content img { max-width: 100%; border-radius: 4px; margin: 1em 0; }
+    .detail-content ul, .detail-content ol { padding-left: 1.5em; margin-bottom: 1em; }
+    .detail-content li { margin-bottom: 0.3em; }
+    .detail-content hr { border: none; border-top: 1px dashed var(--mist); margin: 2em 0; }
+    .detail-content table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    .detail-content th, .detail-content td { border: 1px solid var(--mist); padding: 8px 12px; text-align: left; }
+    .detail-content th { background: var(--mist); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .back-link {
+      font-family: var(--mono); font-size: 0.75rem;
+      color: var(--stone); text-decoration: none;
+      letter-spacing: 0.05em; display: inline-block;
+      margin-bottom: 32px; transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--rust); }
+    .giscus-section { margin-top: 48px; padding-top: 32px; border-top: 1px dashed var(--mist); }
+
+    /* KaTeX overrides */
+    .katex-display { margin: 1.2em 0; overflow-x: auto; }
+    .katex { font-size: 1.05em; }
+
+    /* ─── Heatmap ─── */
+    .heatmap-section { margin-bottom: 28px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .heatmap-label {
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone); margin-bottom: 10px;
+    }
+    .heatmap-grid {
+      display: inline-grid; grid-template-rows: repeat(7, 11px);
+      grid-auto-flow: column; grid-auto-columns: 11px; gap: 3px;
+    }
+    .heatmap-cell {
+      width: 11px; height: 11px; border-radius: 2px;
+      outline: 1px solid rgba(0,0,0,0.04); outline-offset: -1px; transition: outline-color 0.15s;
+    }
+    .heatmap-cell:hover { outline-color: var(--stone); }
+    .heatmap-l0 { background: #ebedf0; } .heatmap-l1 { background: #9be9a8; }
+    .heatmap-l2 { background: #40c463; } .heatmap-l3 { background: #30a14e; } .heatmap-l4 { background: #39d353; }
+    .heatmap-legend {
+      display: flex; align-items: center; gap: 4px; margin-top: 8px;
+      font-family: var(--mono); font-size: 0.6rem; color: var(--stone);
+    }
+    .heatmap-legend .heatmap-cell { cursor: default; }
+
+    /* ─── States ─── */
+    .state-msg { padding: 60px 0; text-align: center; color: var(--stone); }
     .state-msg-icon { font-size: 2rem; margin-bottom: 12px; }
     .state-msg-text { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.06em; line-height: 1.8; }
     .error-msg { color: #c0392b; }
-
-    /* ─── Global error bar ─── */
     #globalError {
-      display: none;
-      position: fixed; top: 0; left: 0; width: 100%;
-      background: #c0392b; color: var(--white);
-      text-align: center; padding: 10px;
-      font-family: var(--mono); font-size: 0.75rem;
-      z-index: 9999;
+      display: none; position: fixed; top: 0; left: 0; width: 100%;
+      background: #c0392b; color: var(--white); text-align: center;
+      padding: 10px; font-family: var(--mono); font-size: 0.75rem; z-index: 9999;
     }
 
     /* ─── Responsive ─── */
@@ -410,6 +317,7 @@
       .page-wrap { grid-template-columns: 1fr; gap: 40px; }
       .sidebar { position: relative; top: 0; }
       .post-item { grid-template-columns: 60px 1fr; gap: 0 16px; }
+      .detail-title { font-size: 1.5rem; }
     }
   </style>
 </head>
@@ -417,10 +325,23 @@
 
 <div id="globalError"></div>
 
+<!-- ═══ Login Modal ═══ -->
+<div class="modal-overlay" id="loginModal">
+  <div class="login-card">
+    <div class="login-title">Admin Login</div>
+    <div class="login-error" id="loginError"></div>
+    <input type="password" class="field-input" id="loginPassword" placeholder="Password (min 8 chars)" autocomplete="current-password">
+    <div class="btn-row">
+      <button class="btn btn-primary" id="loginBtn">Sign In</button>
+      <button class="btn btn-ghost" id="loginCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ Masthead ═══ -->
 <header class="masthead">
   <div class="masthead-inner">
-    <a class="site-title" href="#">Echoes<em>.</em></a>
+    <a class="site-title" id="siteTitle" href="#">Echoes<em>.</em></a>
     <div class="masthead-right">
       <span class="issue-label" id="issueLabel">— Personal Space</span>
       <button class="admin-trigger" id="adminTrigger" title="Admin">⚙</button>
@@ -433,8 +354,6 @@
 
   <!-- ── Sidebar ── -->
   <aside class="sidebar">
-
-    <!-- Guest bio -->
     <div id="guestBio">
       <div class="bio-block">
         <div class="bio-avatar"></div>
@@ -454,48 +373,62 @@
       </div>
     </div>
 
-    <!-- Admin panel -->
     <div class="admin-panel" id="adminPanel">
       <div class="panel-label" id="editorModeLabel">✦ New Echo</div>
       <input type="text" class="field-input" id="postTitle" placeholder="标题 Title…" autocomplete="off">
-      <div class="ql-wrapper">
-        <div id="editor-container"></div>
-      </div>
+      <textarea class="md-editor" id="mdEditor" placeholder="写点什么… (Markdown / LaTeX)"></textarea>
       <input type="hidden" id="editingId">
       <div class="btn-row">
         <button class="btn btn-primary" id="submitBtn">Publish</button>
         <button class="btn btn-ghost" id="cancelEditBtn" style="display:none">Cancel</button>
       </div>
       <hr class="panel-divider">
-      <button class="btn btn-warning" onclick="restoreDefaultData()" style="width:100%">⟳ Restore Defaults</button>
+      <button class="btn btn-danger" id="logoutBtn" style="width:100%; margin-bottom: 8px;">Logout</button>
+      <button class="btn btn-warning" id="restoreBtn" style="width:100%">⟳ Restore Defaults</button>
     </div>
-
   </aside>
 
-  <!-- ── Feed ── -->
+  <!-- ── Main Content ── -->
   <main>
-    <div class="feed-header">
-      <span class="feed-heading">All Entries</span>
-      <span class="feed-sort" id="feedSort">Latest first</span>
+    <div class="heatmap-section" id="heatmapSection"></div>
+
+    <!-- Feed List View -->
+    <div id="feedListView">
+      <div class="feed-header">
+        <span class="feed-heading">All Entries</span>
+        <span class="feed-sort" id="feedSort">Latest first</span>
+      </div>
+      <ul class="feed-list" id="feedList" style="list-style:none; padding:0; margin:0;">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <div class="loading-text" id="loadingText">Initializing…</div>
+        </div>
+      </ul>
     </div>
 
-    <ul class="feed-list" id="feedList" style="list-style:none; padding:0; margin:0;">
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">Initializing…</div>
+    <!-- Detail View -->
+    <div class="detail-view" id="detailView">
+      <a class="back-link" href="#/">← Back to all entries</a>
+      <div class="detail-header">
+        <h1 class="detail-title" id="detailTitle"></h1>
+        <div class="detail-date" id="detailDate"></div>
       </div>
-    </ul>
+      <div class="detail-content" id="detailContent"></div>
+      <div class="giscus-section" id="giscusSection"></div>
+    </div>
   </main>
 
 </div>
 
 <script>
-  // ─── Async script loader with fallback ───
+  /* ═══════════════════════════════════════════════
+   *  SCRIPT LOADER
+   * ═══════════════════════════════════════════════ */
   function loadScript(urls) {
     return new Promise((resolve, reject) => {
       let idx = 0;
       function tryNext() {
-        if (idx >= urls.length) { reject(new Error('All CDNs failed: ' + urls[0])); return; }
+        if (idx >= urls.length) { reject(new Error('All CDNs failed: ' + urls.join(', '))); return; }
         const s = document.createElement('script');
         s.src = urls[idx++];
         s.onload = resolve;
@@ -506,62 +439,201 @@
     });
   }
 
-  // ─── Config ───
+  /* ═══════════════════════════════════════════════
+   *  CONFIG
+   * ═══════════════════════════════════════════════ */
   const SUPABASE_URL = 'https://pukmwienoiknatnpzobk.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1a213aWVub2lrbmF0bnB6b2JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyOTYyMjgsImV4cCI6MjA3OTg3MjIyOH0.OXSEMos-dlXKk0exU4e-ZKTFo2vxDpm5jRMCRGqSSp0';
-  const ADMIN_PASS = 'admin';
-  const AUTH_KEY = 'is_admin_mode';
+  const EDGE_FN_URL = SUPABASE_URL + '/functions/v1';
 
-  let sb = null, quill = null, cachedPosts = [];
+  /* ──── Giscus config (fill in after setup) ──── */
+  const GISCUS_CFG = {
+    repo:       'YOUR_GITHUB_USER/YOUR_REPO',
+    repoId:     'YOUR_REPO_ID',
+    category:   'Announcements',
+    categoryId: 'YOUR_CATEGORY_ID',
+    mapping:    'pathname',
+    theme:      'light',
+    lang:       'zh-CN'
+  };
 
-  // ─── Error ───
+  let sb = null, cachedPosts = [], isAdmin = false, csrfToken = '', edgeFnAvailable = null;
+
+  /* ═══════════════════════════════════════════════
+   *  ERROR HANDLER
+   * ═══════════════════════════════════════════════ */
   window.onerror = (msg, _u, line) => {
     const b = document.getElementById('globalError');
     b.style.display = 'block';
     b.textContent = `⚠ Runtime error: ${msg} (line ${line}) — please refresh.`;
   };
 
-  // ─── Init ───
-  async function initApp() {
-    try {
-      quill = new Quill('#editor-container', {
-        theme: 'snow',
-        placeholder: '写点什么…',
-        modules: { toolbar: [['bold','italic','underline'],['blockquote','code-block'],[{'list':'bullet'}],['link','image']] }
-      });
-      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-      document.getElementById('adminTrigger').onclick = toggleAdmin;
-      document.getElementById('submitBtn').onclick = handleSubmit;
-      document.getElementById('cancelEditBtn').onclick = resetEditor;
-
-      await fetchPosts();
-    } catch(e) { showFeedError(e.message); }
-  }
-
-  // ─── Data ───
-  async function fetchPosts() {
-    document.getElementById('loadingText').textContent = 'Connecting…';
+  /* ═══════════════════════════════════════════════
+   *  SUPABASE DIRECT API (fallback / reads)
+   * ═══════════════════════════════════════════════ */
+  async function directFetchPosts() {
     const { data, error } = await sb.from('posts').select('*').order('id', { ascending: false });
-    if (error) { showFeedError(`DB error: ${error.message}`); return; }
-    if (!data || data.length === 0) {
-      document.getElementById('feedList').innerHTML = `
-        <div class="state-msg">
-          <div class="state-msg-icon">📭</div>
-          <div class="state-msg-text">Connected — no posts yet.<br>Enter admin mode and restore defaults.</div>
-        </div>`;
-      return;
-    }
-    cachedPosts = data;
-    document.getElementById('postCountNum').textContent = data.length;
-    renderFeed(data);
+    if (error) throw error;
+    return data || [];
   }
 
+  /* ═══════════════════════════════════════════════
+   *  EDGE FUNCTION API (auth-protected writes)
+   * ═══════════════════════════════════════════════ */
+  async function edgeRequest(params, body) {
+    const url = new URL(EDGE_FN_URL + '/posts');
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    const resp = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})
+      },
+      body: JSON.stringify(body),
+      credentials: 'include'
+    });
+    const json = await resp.json();
+    if (!resp.ok) throw new Error(json.error || 'Edge Function error ' + resp.status);
+    return json;
+  }
+
+  async function checkEdgeFnAvailable() {
+    if (edgeFnAvailable !== null) return edgeFnAvailable;
+    try {
+      const resp = await fetch(EDGE_FN_URL + '/posts?op=ping', { credentials: 'include' });
+      edgeFnAvailable = resp.ok;
+    } catch {
+      edgeFnAvailable = false;
+    }
+    return edgeFnAvailable;
+  }
+
+  /* ═══════════════════════════════════════════════
+   *  AUTH
+   * ═══════════════════════════════════════════════ */
+  async function checkSession() {
+    if (!(await checkEdgeFnAvailable())) return false;
+    try {
+      const data = await edgeRequest({ op: 'session' });
+      isAdmin = data.authenticated;
+      csrfToken = data.csrfToken || '';
+      return isAdmin;
+    } catch {
+      return false;
+    }
+  }
+
+  async function doLogin(password) {
+    const data = await edgeRequest({ op: 'login' }, { password });
+    isAdmin = true;
+    csrfToken = data.csrfToken;
+    return true;
+  }
+
+  async function doLogout() {
+    try { await edgeRequest({ op: 'logout' }); } catch {}
+    isAdmin = false;
+    csrfToken = '';
+    updateUI();
+    renderFeed(cachedPosts);
+    navigateToRoute();
+  }
+
+  /* ═══════════════════════════════════════════════
+   *  MARKDOWN + KATEX RENDERER
+   * ═══════════════════════════════════════════════ */
+  let mdLib = null;
+
+  function initMarkdown() {
+    if (typeof window.markdownit === 'function') {
+      mdLib = window.markdownit({
+        html: false,
+        linkify: true,
+        breaks: true
+      });
+    }
+  }
+
+  function renderMarkdown(text) {
+    if (!text) return '';
+    if (mdLib) return mdLib.render(text);
+    // Fallback: basic escaping
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+  }
+
+  function renderMath(el) {
+    if (typeof window.renderMathInElement === 'function') {
+      window.renderMathInElement(el, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$',  right: '$',  display: false }
+        ],
+        throwOnError: false,
+        trust: true
+      });
+    }
+  }
+
+  function stripMd(text) {
+    if (!text) return '';
+    return text.replace(/#{1,6}\s/g, '').replace(/[*_`~\[\]()!>|-]/g, '').replace(/\n+/g, ' ').trim();
+  }
+
+  function extractExcerpt(post) {
+    if (post.content_md) return stripMd(post.content_md).substring(0, 120);
+    if (post.content) { const t = document.createElement('div'); t.innerHTML = post.content; return (t.textContent||'').substring(0, 120); }
+    return '';
+  }
+
+  /* ═══════════════════════════════════════════════
+   *  HASH ROUTER
+   * ═══════════════════════════════════════════════ */
+  function getRoute() {
+    const h = location.hash || '#/';
+    const m = h.match(/^#\/post\/(.+)$/);
+    return m ? { page: 'detail', id: m[1] } : { page: 'list' };
+  }
+
+  function navigateToRoute() {
+    const route = getRoute();
+    const feedView  = document.getElementById('feedListView');
+    const detailView = document.getElementById('detailView');
+
+    if (route.page === 'detail') {
+      feedView.style.display = 'none';
+      detailView.classList.add('visible');
+      const post = cachedPosts.find(p => String(p.id) === String(route.id));
+      if (post) {
+        document.getElementById('detailTitle').textContent = post.title;
+        document.getElementById('detailDate').textContent = post.raw_date || post.date || '';
+        const src = post.content_md || '';
+        document.getElementById('detailContent').innerHTML = src ? renderMarkdown(src) : (post.content || '');
+        renderMath(document.getElementById('detailContent'));
+        document.title = post.title + ' — Echoes';
+        mountGiscus();
+      } else {
+        document.getElementById('detailTitle').textContent = '404';
+        document.getElementById('detailDate').textContent = '';
+        document.getElementById('detailContent').innerHTML = '<p>This post does not exist.</p>';
+        document.title = '404 — Echoes';
+        unmountGiscus();
+      }
+      window.scrollTo({ top: 0 });
+    } else {
+      feedView.style.display = '';
+      detailView.classList.remove('visible');
+      document.title = 'Nolan — Echoes';
+      unmountGiscus();
+    }
+  }
+
+  /* ═══════════════════════════════════════════════
+   *  POST LIST RENDERING
+   * ═══════════════════════════════════════════════ */
   function parseDateLabel(dateStr) {
-    // dateStr like "2025年11月27日 · 周四" or ISO "2025-11-27"
     let d;
-    if (dateStr && dateStr.includes('-')) { d = new Date(dateStr + 'T00:00:00'); }
-    else if (dateStr && dateStr.includes('年')) {
+    if (dateStr && dateStr.includes('-')) d = new Date(dateStr + 'T00:00:00');
+    else if (dateStr) {
       const m = dateStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
       if (m) d = new Date(+m[1], +m[2]-1, +m[3]);
     }
@@ -574,20 +646,22 @@
   }
 
   function renderFeed(posts) {
-    const isAdmin = localStorage.getItem(AUTH_KEY) === '1';
     const list = document.getElementById('feedList');
     list.innerHTML = '';
-
     posts.forEach((post, i) => {
       const lbl = parseDateLabel(post.raw_date || post.date || '');
       const li = document.createElement('li');
       li.className = 'post-item';
       li.style.animationDelay = `${i * 60}ms`;
+      li.setAttribute('role', 'link');
+      li.setAttribute('tabindex', '0');
+      li.dataset.postId = post.id;
 
+      const excerpt = extractExcerpt(post);
       const adminHtml = isAdmin ? `
         <div class="admin-actions visible">
-          <button class="act-btn act-edit" onclick="editPost(${post.id})">Edit</button>
-          <button class="act-btn act-del" onclick="deletePost(${post.id})">Delete</button>
+          <button class="act-btn act-edit" data-action="edit" data-id="${post.id}">Edit</button>
+          <button class="act-btn act-del" data-action="delete" data-id="${post.id}">Delete</button>
         </div>` : '';
 
       li.innerHTML = `
@@ -598,33 +672,106 @@
         </div>
         <div class="post-body">
           <h2 class="post-title">${post.title}</h2>
-          <div class="post-excerpt">${post.content}</div>
+          <div class="post-excerpt">${excerpt}…</div>
           <div class="post-footer">
-            <span class="post-tag"># echo</span>
-            ${adminHtml}
+            <span class="post-tag"># echo</span>${adminHtml}
           </div>
         </div>`;
+
+      li.addEventListener('click', e => {
+        if (e.target.closest('.admin-actions')) return;
+        location.hash = '#/post/' + post.id;
+      });
+      li.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.target.closest('.admin-actions'))
+          location.hash = '#/post/' + post.id;
+      });
       list.appendChild(li);
+    });
+
+    list.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = parseInt(btn.dataset.id);
+        if (btn.dataset.action === 'edit') editPost(id);
+        else deletePost(id);
+      });
     });
   }
 
-  // ─── Admin UI ───
-  function toggleAdmin() {
-    const isAdmin = localStorage.getItem(AUTH_KEY) === '1';
-    if (isAdmin) {
-      localStorage.setItem(AUTH_KEY, '0');
-      resetEditor();
-    } else {
-      const pwd = prompt('Admin password:');
-      if (pwd === ADMIN_PASS) localStorage.setItem(AUTH_KEY, '1');
-      else if (pwd !== null) { alert('Wrong password.'); return; }
+  /* ═══════════════════════════════════════════════
+   *  DATA FETCHING
+   * ═══════════════════════════════════════════════ */
+  async function fetchAllPosts() {
+    document.getElementById('loadingText').textContent = 'Connecting…';
+    try {
+      if (await checkEdgeFnAvailable()) {
+        const data = await edgeRequest({ op: 'fetch' });
+        cachedPosts = data.data || [];
+      } else {
+        cachedPosts = await directFetchPosts();
+      }
+    } catch (e) {
+      // Last resort: direct
+      try { cachedPosts = await directFetchPosts(); } catch (e2) {
+        showFeedError('DB error: ' + e2.message); return;
+      }
     }
-    updateUI();
+
+    if (cachedPosts.length === 0) {
+      document.getElementById('feedList').innerHTML = `
+        <div class="state-msg">
+          <div class="state-msg-icon">📭</div>
+          <div class="state-msg-text">Connected — no posts yet.<br>Enter admin mode and restore defaults.</div>
+        </div>`;
+      return;
+    }
+    document.getElementById('postCountNum').textContent = cachedPosts.length;
     renderFeed(cachedPosts);
+    renderHeatmap(cachedPosts);
+  }
+
+  /* ═══════════════════════════════════════════════
+   *  ADMIN UI
+   * ═══════════════════════════════════════════════ */
+  function toggleAdmin() {
+    if (isAdmin) { doLogout(); return; }
+    showLoginModal();
+  }
+
+  function showLoginModal() {
+    const modal = document.getElementById('loginModal');
+    modal.classList.add('visible');
+    document.getElementById('loginError').classList.remove('visible');
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginPassword').focus();
+  }
+  function hideLoginModal() { document.getElementById('loginModal').classList.remove('visible'); }
+
+  async function handleLogin() {
+    const pwd   = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    const btn   = document.getElementById('loginBtn');
+
+    if (!pwd || pwd.length < 8) {
+      errEl.textContent = 'Password must be at least 8 characters.';
+      errEl.classList.add('visible'); return;
+    }
+
+    btn.textContent = '…'; btn.disabled = true;
+    try {
+      await doLogin(pwd);
+      hideLoginModal();
+      updateUI();
+      renderFeed(cachedPosts);
+    } catch (e) {
+      errEl.textContent = e.message;
+      errEl.classList.add('visible');
+    }
+    btn.textContent = 'Sign In'; btn.disabled = false;
   }
 
   function updateUI() {
-    const isAdmin = localStorage.getItem(AUTH_KEY) === '1';
     document.getElementById('guestBio').style.display = isAdmin ? 'none' : 'block';
     document.getElementById('adminPanel').classList.toggle('visible', isAdmin);
     const btn = document.getElementById('adminTrigger');
@@ -633,78 +780,103 @@
     btn.title = isAdmin ? 'Exit Admin' : 'Admin';
   }
 
-  // ─── Submit / Edit / Delete ───
+  /* ═══════════════════════════════════════════════
+   *  POST CRUD
+   * ═══════════════════════════════════════════════ */
   async function handleSubmit() {
-    const title   = document.getElementById('postTitle').value.trim();
-    const content = quill.root.innerHTML;
-    const editId  = document.getElementById('editingId').value;
+    const title     = document.getElementById('postTitle').value.trim();
+    const contentMd = document.getElementById('mdEditor').value;
+    const editId    = document.getElementById('editingId').value;
     if (!title) { alert('Title required'); return; }
 
     const btn = document.getElementById('submitBtn');
     btn.textContent = '…'; btn.disabled = true;
 
     const now = new Date();
-    const dateStr  = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
-    const rawDate  = now.toISOString().split('T')[0];
+    const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+    const rawDate = now.toISOString().split('T')[0];
 
-    let error;
-    if (editId) {
-      ({ error } = await sb.from('posts').update({ title, content }).eq('id', editId));
-    } else {
-      ({ error } = await sb.from('posts').insert([{ id: Date.now(), title, content, date: dateStr, raw_date: rawDate }]));
-    }
+    try {
+      if (editId) {
+        if (isAdmin) {
+          await edgeRequest({ op: 'update' }, { id: +editId, title, content_md: contentMd });
+        } else {
+          await sb.from('posts').update({ title, content_md: contentMd }).eq('id', editId);
+        }
+      } else {
+        const newId = Date.now();
+        const row = { id: newId, title, content_md: contentMd, date: dateStr, raw_date: rawDate };
+        if (isAdmin) {
+          await edgeRequest({ op: 'insert' }, row);
+        } else {
+          await sb.from('posts').insert([row]);
+        }
+      }
+      resetEditor();
+      await fetchAllPosts();
+    } catch (e) { alert('Error: ' + e.message); }
 
     btn.disabled = false;
     btn.textContent = editId ? 'Save' : 'Publish';
-
-    if (error) alert('Error: ' + error.message);
-    else { resetEditor(); fetchPosts(); }
   }
 
-  window.editPost = function(id) {
+  function editPost(id) {
     const post = cachedPosts.find(p => p.id === id);
     if (!post) return;
     document.getElementById('postTitle').value = post.title;
-    quill.root.innerHTML = post.content;
+    document.getElementById('mdEditor').value = post.content_md || '';
     document.getElementById('editingId').value = post.id;
     document.getElementById('editorModeLabel').textContent = '✦ Editing';
     document.getElementById('submitBtn').textContent = 'Save';
     document.getElementById('cancelEditBtn').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }
 
-  window.deletePost = async function(id) {
+  async function deletePost(id) {
     if (!confirm('Delete this post?')) return;
-    const { error } = await sb.from('posts').delete().eq('id', id);
-    if (error) alert('Error: ' + error.message);
-    else fetchPosts();
-  };
+    try {
+      if (isAdmin) {
+        await edgeRequest({ op: 'delete' }, { id });
+      } else {
+        await sb.from('posts').delete().eq('id', id);
+      }
+      await fetchAllPosts();
+    } catch (e) { alert('Error: ' + e.message); }
+  }
 
   function resetEditor() {
     document.getElementById('postTitle').value = '';
-    quill.root.innerHTML = '';
+    document.getElementById('mdEditor').value = '';
     document.getElementById('editingId').value = '';
     document.getElementById('editorModeLabel').textContent = '✦ New Echo';
     document.getElementById('submitBtn').textContent = 'Publish';
     document.getElementById('cancelEditBtn').style.display = 'none';
   }
 
-  // ─── Restore Defaults ───
-  window.restoreDefaultData = async function() {
+  async function restoreDefaults() {
     if (!confirm('Restore default posts? (existing posts are kept)')) return;
     const defaults = [
-      { id: 1764258833297, title: "2025/11/27", date: "2025年11月27日", raw_date: "2025-11-27", content: "<p>有时，我觉得世界是更高维度的...</p>" },
-      { id: 1764258740402, title: "项目作品链接",  date: "2025年11月27日", raw_date: "2025-11-27", content: "<ul><li><a href='#'>我的云盘</a></li></ul>" },
-      { id: 1764258281668, title: "Hello World",   date: "2025年11月27日", raw_date: "2025-11-27", content: "<p>我是 Nolan...</p>" }
+      { id: 1764258833297, title: "2025/11/27", date: "2025年11月27日", raw_date: "2025-11-27",
+        content_md: "有时，我觉得世界是更高维度的…" },
+      { id: 1764258740402, title: "项目作品链接", date: "2025年11月27日", raw_date: "2025-11-27",
+        content_md: "- [我的云盘](#)" },
+      { id: 1764258281668, title: "Hello World", date: "2025年11月27日", raw_date: "2025-11-27",
+        content_md: "我是 Nolan..." }
     ];
     let count = 0;
     for (const p of defaults) {
       const { data } = await sb.from('posts').select('id').eq('id', p.id);
-      if (data && data.length === 0) { await sb.from('posts').insert([p]); count++; }
+      if (data && data.length === 0) {
+        try {
+          if (isAdmin) await edgeRequest({ op: 'insert' }, p);
+          else await sb.from('posts').insert([p]);
+          count++;
+        } catch {}
+      }
     }
     alert(`Done. ${count} post(s) restored.`);
-    fetchPosts();
-  };
+    await fetchAllPosts();
+  }
 
   function showFeedError(msg) {
     document.getElementById('feedList').innerHTML = `
@@ -714,18 +886,129 @@
       </div>`;
   }
 
-  // ─── Boot ───
+  /* ═══════════════════════════════════════════════
+   *  HEATMAP
+   * ═══════════════════════════════════════════════ */
+  function renderHeatmap(posts) {
+    const section = document.getElementById('heatmapSection');
+    if (!posts || posts.length === 0) { section.innerHTML = ''; return; }
+
+    const counts = {};
+    posts.forEach(p => { const d = p.raw_date; if (d) counts[d] = (counts[d]||0)+1; });
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + (6 - endDate.getDay())); // Saturday of this week
+
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - (52 * 7) - startDate.getDay());
+
+    let cells = '';
+    const d = new Date(startDate);
+    while (d <= endDate) {
+      const ds = d.toISOString().split('T')[0];
+      const c = counts[ds] || 0;
+      const l = c >= 3 ? 4 : c === 2 ? 3 : c === 1 ? 2 : 0;
+      cells += `<div class="heatmap-cell heatmap-l${l}" title="${c} post${c!==1?'s':''} · ${ds}"></div>`;
+      d.setDate(d.getDate() + 1);
+    }
+
+    section.innerHTML = `
+      <div class="heatmap-label">Publish Activity</div>
+      <div class="heatmap-grid">${cells}</div>
+      <div class="heatmap-legend">
+        Less
+        <div class="heatmap-cell heatmap-l0"></div>
+        <div class="heatmap-cell heatmap-l1"></div>
+        <div class="heatmap-cell heatmap-l2"></div>
+        <div class="heatmap-cell heatmap-l3"></div>
+        <div class="heatmap-cell heatmap-l4"></div>
+        More
+      </div>`;
+  }
+
+  /* ═══════════════════════════════════════════════
+   *  GISCUS
+   * ═══════════════════════════════════════════════ */
+  function mountGiscus() {
+    const el = document.getElementById('giscusSection');
+    el.innerHTML = '';
+    if (GISCUS_CFG.repoId === 'YOUR_REPO_ID') {
+      el.innerHTML = `<div style="text-align:center;padding:24px 0;color:var(--stone);">
+        <div style="font-size:1.5rem;margin-bottom:8px;">💬</div>
+        <div style="font-family:var(--mono);font-size:0.75rem;line-height:1.8;">
+          Comments (giscus) — not yet configured.<br>
+          Set up at <a href="https://giscus.app" target="_blank" style="color:var(--rust)">giscus.app</a>
+        </div></div>`;
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.setAttribute('data-repo', GISCUS_CFG.repo);
+    s.setAttribute('data-repo-id', GISCUS_CFG.repoId);
+    s.setAttribute('data-category', GISCUS_CFG.category);
+    s.setAttribute('data-category-id', GISCUS_CFG.categoryId);
+    s.setAttribute('data-mapping', GISCUS_CFG.mapping);
+    s.setAttribute('data-theme', GISCUS_CFG.theme);
+    s.setAttribute('data-lang', GISCUS_CFG.lang);
+    s.crossOrigin = 'anonymous'; s.async = true;
+    el.appendChild(s);
+  }
+  function unmountGiscus() { document.getElementById('giscusSection').innerHTML = ''; }
+
+  /* ═══════════════════════════════════════════════
+   *  INIT
+   * ═══════════════════════════════════════════════ */
+  async function initApp() {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    initMarkdown();
+    await checkSession();
+    updateUI();
+
+    document.getElementById('adminTrigger').onclick = toggleAdmin;
+    document.getElementById('submitBtn').onclick = handleSubmit;
+    document.getElementById('cancelEditBtn').onclick = resetEditor;
+    document.getElementById('restoreBtn').onclick = restoreDefaults;
+    document.getElementById('logoutBtn').onclick = doLogout;
+    document.getElementById('siteTitle').onclick = e => { e.preventDefault(); location.hash = '#/'; };
+
+    document.getElementById('loginBtn').onclick = handleLogin;
+    document.getElementById('loginCancelBtn').onclick = hideLoginModal;
+    document.getElementById('loginPassword').onkeydown = e => {
+      if (e.key === 'Enter') handleLogin();
+      if (e.key === 'Escape') hideLoginModal();
+    };
+    document.getElementById('loginModal').onclick = e => {
+      if (e.target === e.currentTarget) hideLoginModal();
+    };
+
+    window.addEventListener('hashchange', navigateToRoute);
+
+    await fetchAllPosts();
+    navigateToRoute();
+  }
+
+  /* ─── Boot ─── */
   window.addEventListener('DOMContentLoaded', async () => {
     updateUI();
     try {
       await loadScript([
-        'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
-        'https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js',
-        'https://cdn.bootcdn.net/ajax/libs/quill/1.3.6/quill.min.js'
-      ]);
-      await loadScript([
         'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
         'https://unpkg.com/@supabase/supabase-js@2'
+      ]);
+      await Promise.all([
+        loadScript([
+          'https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.2/markdown-it.min.js'
+        ]),
+        loadScript([
+          'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js'
+        ]),
+        loadScript([
+          'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js'
+        ])
       ]);
     } catch(e) {
       showFeedError('依赖库加载失败，请检查网络后刷新重试。<br><small>' + e.message + '</small>');
