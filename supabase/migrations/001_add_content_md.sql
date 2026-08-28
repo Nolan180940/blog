@@ -17,20 +17,22 @@ CREATE TABLE IF NOT EXISTS admin_config (
 ALTER TABLE admin_config ENABLE ROW LEVEL SECURITY;
 -- No policies = no access for anon role (Supabase default)
 
--- 4. Ensure posts table has RLS enabled with public read
+-- 4. Fix posts table RLS policies
+--    (verified existing policies: "Allow public read access" SELECT,
+--     "Allow full access for anon" ALL — the latter is a security hole, drop it)
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 
--- Allow anonymous SELECT on posts
+-- Drop ALL pre-existing policies first (RLS policies are OR-combined,
+-- so any leftover permissive write policy would defeat the lockdown)
+DROP POLICY IF EXISTS "Allow full access for anon" ON posts;
+DROP POLICY IF EXISTS "Allow public read access" ON posts;
 DROP POLICY IF EXISTS "Public read access" ON posts;
+DROP POLICY IF EXISTS "No anon writes" ON posts;
+
+-- Recreate clean state: anonymous read-only.
+-- Writes go exclusively through the Edge Function (service role bypasses RLS).
 CREATE POLICY "Public read access" ON posts
   FOR SELECT USING (true);
-
--- Deny all anonymous writes (writes go through Edge Function with service role)
-DROP POLICY IF EXISTS "No anon writes" ON posts;
-CREATE POLICY "No anon writes" ON posts
-  FOR ALL
-  USING (false)
-  WITH CHECK (false);
 
 -- 5. Seed default admin password (bcrypt hash of "admin123")
 -- ⚠️ CHANGE THIS PASSWORD after first login!
