@@ -13,8 +13,9 @@
  *   GET  ?op=ping       → { ok }
  */
 
-import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { serve } from "std/http/server";
+import { createClient } from "@supabase/supabase-js";
+import bcrypt from "bcryptjs";
 
 const SUPABASE_URL  = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY   = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -84,9 +85,7 @@ async function verifyPassword(input: string, storedHash: string): Promise<boolea
   // Deno doesn't have bcrypt built-in; use Web Crypto with a fallback:
   // We stored a SHA-256 salted hash as: salt.sha256hex
   if (storedHash.includes("$2")) {
-    // bcrypt hash — bcryptjs is CommonJS; the real function is on .default
-    const bcryptMod: any = await import("npm:bcryptjs@2.4.3");
-    const bcrypt = bcryptMod.default ?? bcryptMod;
+    // bcryptjs is CommonJS; Deno's npm support exposes module.exports as default
     return bcrypt.compareSync(input, storedHash);
   }
   // Legacy format: salt.hex

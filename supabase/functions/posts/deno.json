@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "lib": ["deno.window"],
     "strict": true
   },
   "imports": {
     "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2",
-    "bcryptjs": "https://esm.sh/bcryptjs@2.4.3"
+    "bcryptjs": "https://esm.sh/bcryptjs@2.4.3",
+    "std/http/server": "https://deno.land/std@0.208.0/http/server.ts"
   }
 }
