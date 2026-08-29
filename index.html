@@ -475,6 +475,7 @@
   };
 
   let sb = null, cachedPosts = [], isAdmin = false, csrfToken = '', edgeFnAvailable = null, currentPostId = '';
+  const SESSION_STORAGE_KEY = 'echoes_session_token';
 
   /* ═══════════════════════════════════════════════
    *  ERROR HANDLER
@@ -500,12 +501,14 @@
   async function edgeRequest(params, body) {
     const url = new URL(EDGE_FN_URL + '/posts');
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    const sessionToken = sessionStorage.getItem(SESSION_STORAGE_KEY) || '';
     const resp = await fetch(url.toString(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...AUTH_HEADER,
-        ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})
+        ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+        ...(sessionToken ? { 'X-Session-Token': sessionToken } : {})
       },
       body: JSON.stringify(body),
       credentials: 'include'
@@ -532,8 +535,13 @@
   async function checkSession() {
     if (!(await checkEdgeFnAvailable())) return false;
     try {
+      const sessionToken = sessionStorage.getItem(SESSION_STORAGE_KEY) || '';
       const resp = await fetch(EDGE_FN_URL + '/posts?op=session', {
-        headers: AUTH_HEADER, credentials: 'include'
+        headers: {
+          ...AUTH_HEADER,
+          ...(sessionToken ? { 'X-Session-Token': sessionToken } : {})
+        },
+        credentials: 'include'
       });
       if (!resp.ok) return false;
       const data = await resp.json();
@@ -549,6 +557,8 @@
     const data = await edgeRequest({ op: 'login' }, { password });
     isAdmin = true;
     csrfToken = data.csrfToken;
+    // Save session token for browsers that block third-party cookies (mobile)
+    if (data.sessionToken) sessionStorage.setItem(SESSION_STORAGE_KEY, data.sessionToken);
     return true;
   }
 
@@ -556,6 +566,7 @@
     try { await edgeRequest({ op: 'logout' }); } catch {}
     isAdmin = false;
     csrfToken = '';
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
     updateUI();
     renderFeed(cachedPosts);
     navigateToRoute();

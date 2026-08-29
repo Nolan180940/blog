@@ -52,6 +52,15 @@ function extractSessionCookie(headers: Headers): string | null {
   return m ? decodeURIComponent(m[1]) : null;
 }
 
+// Session token can arrive via HttpOnly cookie OR X-Session-Token header.
+// The header path is required for mobile browsers that block third-party
+// cookies (blog on github.io, API on supabase.co = cross-site).
+function extractSession(req: Request): string | null {
+  const fromHeader = req.headers.get("x-session-token");
+  if (fromHeader) return fromHeader;
+  return extractSessionCookie(req.headers);
+}
+
 async function verifySession(token: string): Promise<boolean> {
   const [raw, sig] = [token.slice(0, 64), token.slice(65)];
   if (!raw || !sig) return false;
@@ -134,8 +143,8 @@ serve(async (req: Request): Promise<Response> => {
 
     /* ──── session check ──── */
     if (op === "session") {
-      const cookie = extractSessionCookie(req.headers);
-      if (cookie && await verifySession(cookie)) {
+      const token = extractSession(req);
+      if (token && await verifySession(token)) {
         const csrf = generateToken();
         return jsonResp({ authenticated: true, csrfToken: csrf }, 200, CORS);
       }
@@ -168,7 +177,7 @@ serve(async (req: Request): Promise<Response> => {
       const csrf = generateToken();
 
       return jsonResp(
-        { csrfToken: csrf },
+        { csrfToken: csrf, sessionToken: signed },
         200,
         {
           ...CORS,
@@ -195,8 +204,8 @@ serve(async (req: Request): Promise<Response> => {
 
     /* ──── All write operations require session auth ──── */
     if (["insert", "update", "delete"].includes(op)) {
-      const cookie = extractSessionCookie(req.headers);
-      if (!cookie || !(await verifySession(cookie))) {
+      const token = extractSession(req);
+      if (!token || !(await verifySession(token))) {
         return jsonResp({ error: "Unauthorized" }, 401, CORS);
       }
 
